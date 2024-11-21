@@ -1,3 +1,5 @@
+@import "../player.ck"
+
 // Base class for a game level.
 public class Level extends GGen {
     vec2 _spawn;
@@ -7,8 +9,12 @@ public class Level extends GGen {
         pos => _spawn;
     }
 
-    fun addPlatform(Platform @ p) {
-        p --> this;
-        _plats << p;
+    fun addPlatform(Platform @ plat) {
+        plat --> this;
+        _plats << plat;
+    }
+
+    fun start(Player @ p) {
+        p.pos(@(_spawn.x, 0, _spawn.y));
     }
 }

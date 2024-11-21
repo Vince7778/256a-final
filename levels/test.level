@@ -15,4 +15,4 @@ spawn 0 0
 // This is your basic gray platform.
 // Arguments are priority, and x1, z1, x2, z2 describing opposite corners.
 p basic 0 -2 -2 2 2
-p basic 0 -1 -1 1 -5
+p basic 0 -1 -2 1 -6
