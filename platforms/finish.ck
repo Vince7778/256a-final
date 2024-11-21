@@ -1,13 +1,13 @@
 @import { "base.ck", "../utils.ck" }
 
-// just your regular old gray platform
-public class BasicPlatform extends Platform {
+// platform that wins the level upon touch
+public class FinishPlatform extends Platform {
     3.0 => static float HEIGHT;
 
     GCube _cube --> this;
-    _cube.color(@(1, 1, 1) * 0.1);
+    _cube.color(@(0, 1, 0));
 
-    fun BasicPlatform(float inPriority, vec4 bounds) {
+    fun FinishPlatform(float inPriority, vec4 bounds) {
         inPriority => priority;
         Utils.fixBounds(bounds) => bounds;
         bounds => _hitbox;

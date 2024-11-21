@@ -1,4 +1,4 @@
-@import { "base.ck", "../utils.ck", "../platforms/base.ck", "../platforms/basic.ck" }
+@import { "base.ck", "../utils.ck", "../platforms/base.ck", "../platforms/basic.ck", "../platforms/finish.ck" }
 
 // Class that reads levels from a file.
 public class LevelReader {
@@ -13,6 +13,9 @@ public class LevelReader {
         if (platType == "basic") {
             Utils.readVec4(tok) => vec4 bounds;
             return new BasicPlatform(priority, bounds);
+        } else if (platType == "finish") {
+            Utils.readVec4(tok) => vec4 bounds;
+            return new FinishPlatform(priority, bounds);
         } else {
             <<< "Error: when reading level file: Unrecognized platform type", platType >>>;
             return null;
@@ -47,6 +50,7 @@ public class LevelReader {
             }
         }
 
+        l.bake();
         return l;
     }
 }

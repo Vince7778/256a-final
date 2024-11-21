@@ -13,5 +13,5 @@ public class Platform extends GGen {
 
     // priority of platform
     // higher priority means renders on top and gets updates first
-    float _priority;
+    float priority;
 }
