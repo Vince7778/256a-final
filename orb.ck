@@ -36,6 +36,6 @@ public class SoundOrb extends GGen {
         diffVec.normalize();
         p.right() => vec3 rightVec;
         diffVec.x * rightVec.x + diffVec.z * rightVec.z => float newPan;
-        newPan => pan.pan;
+        Std.clampf(newPan, -0.9, 0.9) => pan.pan;
     }
 }

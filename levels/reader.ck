@@ -43,6 +43,10 @@ public class LevelReader {
             else if (lineType == "spawn") {
                 Utils.readVec2(tok) => vec2 spawnPos;
                 l.setSpawn(spawnPos);
+                if (tok.more()) {
+                    tok.next().toFloat() => float startRot;
+                    l.setStartRot(startRot);
+                }
             } else if (lineType == "p") {
                 l.addPlatform(readPlatform(tok));
             } else {

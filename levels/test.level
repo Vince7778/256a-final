@@ -6,7 +6,8 @@
 
 // This sets the player spawnpoint.
 // Only the last one in a level file is used.
-spawn 0 0
+// The optional third argument represents the starting rotation in degrees.
+spawn 0 0 30
 
 // This section creates the platforms of the level.
 // All platforms have a priority, which is kinda like y-level

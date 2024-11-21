@@ -23,4 +23,8 @@ public class FinishPlatform extends Platform {
             (bounds.y + bounds.w) / 2.0
         ));
     }
+
+    fun int interact(Player @ p) {
+        return Platform.Inter_EndLevel;
+    }
 }

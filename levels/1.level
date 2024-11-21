@@ -1,7 +1,7 @@
 // first level in the game!
-// pretty simple, just need to place two sound balls
+// pretty simple, just need to place sound balls
 // to guide yourself around the corner
-spawn 0 0
+spawn 0 0 -30
 p basic 0 -2 -2 2 2
 p basic 0 -0.6 -2 0.6 -6.6
 p basic 0 0.6 -6.6 4 -5.4

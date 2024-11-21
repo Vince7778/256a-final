@@ -2,11 +2,17 @@
 
 // Base class for a game level.
 public class Level extends GGen {
+    float _startRot;
     vec2 _spawn;
     Platform _plats[0];
 
     fun setSpawn(vec2 pos) {
         pos => _spawn;
+    }
+
+    // input is in degrees!!
+    fun setStartRot(float val) {
+        val / 180 * pi => _startRot;
     }
 
     fun addPlatform(Platform @ plat) {
@@ -38,6 +44,7 @@ public class Level extends GGen {
     fun start(Player @ p) {
         p.reset();
         p.pos(@(_spawn.x, 0, _spawn.y));
+        p.rotateY(_startRot);
     }
 
     // returns the platform that the player is interacting with

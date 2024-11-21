@@ -15,6 +15,8 @@ public class Player extends GGen {
     0 => int isFalling;
     @(0, 0, 0) => vec3 _vel;
 
+    0 => int isBlind;
+
     fun setSceneCam(GScene @ scene) {
         scene.camera(_cam);
     }
@@ -65,5 +67,14 @@ public class Player extends GGen {
 
     fun vec4 getAABB() {
         return @(posX()-WIDTH/2, posZ()-WIDTH/2, posX()+WIDTH/2, posZ()+WIDTH/2);
+    }
+
+    fun toggleBlind() {
+        if (isBlind) {
+            _cam.posY(EYE_HEIGHT);
+        } else {
+            _cam.posY(1000);
+        }
+        !isBlind => isBlind;
     }
 }

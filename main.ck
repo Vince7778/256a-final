@@ -9,15 +9,18 @@ GG.nextFrame() => now;
 GG.scene().light().rotY(pi/5);
 
 // BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
-Controller controller(GG.scene(), "levels/1.level");
+["levels/test.level", "levels/1.level"] @=> string levels[];
+0 => int curLevel;
+
+Controller controller(GG.scene(), levels[curLevel]);
 
 while (true) {
     GG.nextFrame() => now;
-    controller.frame();
-
-    if (GWindow.keyDown(GWindow.Key_R)) {
-        controller.clear();
+    if (controller.frame()) {
+        1 +=> curLevel;
+        levels.size() %=> curLevel;
+        controller.clearOrbs();
         controller --< GG.scene();
-        new Controller(GG.scene(), "levels/1.level") @=> controller;
+        new Controller(GG.scene(), levels[curLevel]) @=> controller;
     }
 }
