@@ -19,6 +19,14 @@ public class Player extends GGen {
         scene.camera(_cam);
     }
 
+    fun reset() {
+        0 => shouldPreventInput;
+        0 => isFalling;
+        @(0, 0, 0) => _vel;
+        _cam.rot(@(0, 0, 0));
+        rot(@(0, 0, 0));
+    }
+
     fun update(float dt) {
         if (isFalling) {
             // i don't care enough to make this accurate

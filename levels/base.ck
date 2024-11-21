@@ -36,6 +36,7 @@ public class Level extends GGen {
     }
 
     fun start(Player @ p) {
+        p.reset();
         p.pos(@(_spawn.x, 0, _spawn.y));
     }
 

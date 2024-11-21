@@ -1,4 +1,4 @@
-@import { "platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck" }
+@import { "platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck" }
 
 GWindow.mouseMode(GWindow.MouseMode_Disabled);
 GWindow.mouseDeltaPos();
@@ -9,14 +9,14 @@ GG.nextFrame() => now;
 GG.scene().light().rotY(pi/5);
 
 // BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
-LevelReader.read("levels/1.level") @=> Level level;
-level --> GG.scene();
-
-Player player --> GG.scene();
-player.setSceneCam(GG.scene());
-level.start(player);
+Controller controller(GG.scene(), "levels/1.level");
 
 while (true) {
     GG.nextFrame() => now;
-    level.interact(player);
+    controller.frame();
+
+    if (GWindow.keyDown(GWindow.Key_R)) {
+        controller --< GG.scene();
+        new Controller(GG.scene(), "levels/1.level") @=> controller;
+    }
 }
