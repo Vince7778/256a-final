@@ -40,23 +40,13 @@ public class Level extends GGen {
         p.pos(@(_spawn.x, 0, _spawn.y));
     }
 
-    // deal with player-level interaction
-    fun interact(Player @ p) {
-        // see if any platforms are colliding with the player
-        0 => int foundCollision;
-        Platform.Inter_None => int interCode;
+    // returns the platform that the player is interacting with
+    fun Platform touchingPlatform(Player @ p) {
         for (Platform @ plat : _plats) {
             if (plat.collidesWithPlayer(p)) {
-                1 => foundCollision;
-                plat.interact(p) => interCode;
-                break;
+                return plat;
             }
         }
-        if (!foundCollision) {
-            1 => p.isFalling;
-            return;
-        }
-
-        // TODO: end level if given that interact code
+        return null;
     }
 }

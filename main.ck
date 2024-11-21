@@ -16,6 +16,7 @@ while (true) {
     controller.frame();
 
     if (GWindow.keyDown(GWindow.Key_R)) {
+        controller.clear();
         controller --< GG.scene();
         new Controller(GG.scene(), "levels/1.level") @=> controller;
     }
