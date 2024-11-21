@@ -1,0 +1,18 @@
+// This is a test level file!
+// and these are comments!
+// Read this to learn how to make your own levels!
+
+// Be careful, if you pass in a string for a numeric argument it will be parsed as 0!
+
+// This sets the player spawnpoint.
+// Only the last one in a level file is used.
+spawn 0 0
+
+// This section creates the platforms of the level.
+// All platforms have a priority, which is kinda like y-level
+// except prevents z-fighting and determines collision check order.
+
+// This is your basic gray platform.
+// Arguments are priority, and x1, z1, x2, z2 describing opposite corners.
+p basic 0 -2 -2 2 2
+p basic 0 -1 -1 1 -5

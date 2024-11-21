@@ -7,7 +7,8 @@ public class BasicPlatform extends Platform {
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.7);
 
-    fun BasicPlatform(vec4 bounds) {
+    fun BasicPlatform(float priority, vec4 bounds) {
+        priority => _priority;
         Utils.fixBounds(bounds) => bounds;
         bounds => _hitbox;
 
