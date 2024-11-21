@@ -15,8 +15,8 @@ public class Controller extends GGen {
     [0.0, 1.0/3, 2.0/3] @=> float orbHues[];
     [new TriOsc(), new TriOsc(), new TriOsc()] @=> Osc orbOscs[];
     Std.mtof(48) => orbOscs[0].freq;
-    Std.mtof(52) => orbOscs[1].freq;
-    Std.mtof(55) => orbOscs[2].freq;
+    Std.mtof(55) => orbOscs[1].freq;
+    Std.mtof(64) => orbOscs[2].freq;
     0.3 => orbOscs[0].gain;
     0.3 => orbOscs[1].gain;
     0.3 => orbOscs[2].gain;

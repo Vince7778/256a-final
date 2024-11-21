@@ -1,7 +1,7 @@
 // Player controller
 public class Player extends GGen {
     0.8 => static float EYE_HEIGHT;
-    0.002 => static float ROTATION_SPEED;
+    0.003 => static float ROTATION_SPEED;
     3.0 => static float MOVE_SPEED;
     4.0 => static float GRAVITY;
     0.3 => static float WIDTH;
