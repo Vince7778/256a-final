@@ -1,4 +1,4 @@
-@import "../player.ck"
+@import { "../player.ck", "../utils.ck" }
 
 // Base class for a game level.
 public class Level extends GGen {
@@ -37,5 +37,25 @@ public class Level extends GGen {
 
     fun start(Player @ p) {
         p.pos(@(_spawn.x, 0, _spawn.y));
+    }
+
+    // deal with player-level interaction
+    fun interact(Player @ p) {
+        // see if any platforms are colliding with the player
+        0 => int foundCollision;
+        Platform.Inter_None => int interCode;
+        for (Platform @ plat : _plats) {
+            if (plat.collidesWithPlayer(p)) {
+                1 => foundCollision;
+                plat.interact(p) => interCode;
+                break;
+            }
+        }
+        if (!foundCollision) {
+            1 => p.isFalling;
+            return;
+        }
+
+        // TODO: end level if given that interact code
     }
 }

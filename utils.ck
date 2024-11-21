@@ -44,4 +44,13 @@ public class Utils {
         readFloats(tok, 4, p);
         return @(p[0], p[1], p[2], p[3]);
     }
+
+    // returns 1 if collision, 0 if not
+    fun static int collideAABB(vec4 v, vec4 w) {
+        fixBounds(v) => v;
+        fixBounds(w) => w;
+        if (v.z < w.x || v.x > w.z) return 0;
+        if (v.w < w.y || v.y > w.w) return 0;
+        return 1;
+    }
 }

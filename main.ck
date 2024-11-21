@@ -6,8 +6,10 @@ GG.nextFrame() => now;
 // GFlyCamera flyCam --> GG.scene();
 // GG.scene().camera(flyCam);
 
+GG.scene().light().rotY(pi/5);
+
 // BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
-LevelReader.read("levels/test.level") @=> Level level;
+LevelReader.read("levels/1.level") @=> Level level;
 level --> GG.scene();
 
 Player player --> GG.scene();
@@ -16,4 +18,5 @@ level.start(player);
 
 while (true) {
     GG.nextFrame() => now;
+    level.interact(player);
 }
