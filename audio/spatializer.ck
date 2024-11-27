@@ -1,34 +1,41 @@
 
+// single ear source
+// no interpolation happens
+class MonoSource extends UGen {
+    Gain in => JCRev rev => this;
+    0.05 => rev.mix;
+
+    fun MonoSource(UGen b) {
+        b => in;
+    }
+
+    fun _spatialize(float d) {
+        // attempt 1 at spatialization: just change both channel gain with distance
+        Math.exp(-0.2 * d) => in.gain;
+    }
+}
+
 public class Source extends UGen_Stereo {
     0.01 => static float INTERP_RATE;
 
-    UGen @ _base;
+    MonoSource @ _s[2];
     vec3 pos;
-
-    vec3 _curDir;
+    vec3 _cur[2];
 
     fun Source(UGen b) {
-        b @=> _base;
-        _base => this.left;
-        _base => this.right;
+        new MonoSource(b) @=> _s[0] => this.left;
+        new MonoSource(b) @=> _s[1] => this.right;
     }
 
-    fun _spatialize(vec3 v) {
-        // attempt 1 at spatialization: just change both channel gain with distance
-        0.1 / Math.max(v.magnitude(), 0.1) => float gainExp;
-        Math.max(0, 1 + Math.log(gainExp)/5) => float gain;
-        <<< v.magnitude(), gain >>>;
-        gain => this.left.gain;
-        gain => this.right.gain;
-    }
-
-    fun _update(vec3 targetDir) {
-        _curDir + INTERP_RATE * (targetDir - _curDir) => _curDir;
-        _spatialize(_curDir);
+    fun _update(vec3 targetVec, int ear) {
+        _cur[ear] + INTERP_RATE * (targetVec - _cur[ear]) => _cur[ear];
+        _s[ear]._spatialize(_cur[ear].magnitude());
     }
 }
 
 public class Spatializer extends UGen_Stereo {
+    0.3 => static float EAR_DIST;
+
     Source _sources[0];
     vec3 pos; // world position of listener
     vec3 forward; // forward unit vector of listener
@@ -47,13 +54,20 @@ public class Spatializer extends UGen_Stereo {
         while (true) {
             1::samp => now;
             for (Source @ s : _sources) {
-                s.pos - pos => vec3 off;
-                @(
-                    rightV.dot(off),
-                    up.dot(off),
-                    forward.dot(off)
-                ) => vec3 rotOff;
-                s._update(rotOff);
+                for (int ear; ear <= 1; ear++) {
+                    s.pos - pos => vec3 off;
+                    if (ear == 0) {
+                        -EAR_DIST / 2 * rightV +=> off;
+                    } else {
+                        EAR_DIST / 2 * rightV +=> off;
+                    }
+                    @(
+                        rightV.dot(off),
+                        up.dot(off),
+                        forward.dot(off)
+                    ) => vec3 rotOff;
+                    s._update(rotOff, ear);
+                }
             }
         }
     }
