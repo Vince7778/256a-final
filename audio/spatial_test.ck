@@ -6,7 +6,7 @@ Blit src;
 Std.mtof(60) => src.freq;
 3 => src.harmonics;
 
-Spatializer spat => dac;
+SpatializerEngine spat => dac;
 spat.register(src) @=> Source s;
 @(0, 0, -3) => s.pos;
 
