@@ -12,29 +12,80 @@ class SpatializerConfig {
     0 => float coneOuterGain;
     1 => float directionalAttenuationFactor;
     0.2 => float minSpatializationChannelGain;
-    360 => int smoothTime;
+    360::samp => dur smoothTime;
     @(0, 1, 0) => vec3 worldUp;
+}
+
+class AudioUtils {
+    fun static float attenuationInverse(float distance, SpatializerConfig cfg) {
+        if (cfg.minDistance >= cfg.maxDistance) return 1;
+        Std.clampf(distance, cfg.minDistance, cfg.maxDistance) - cfg.minDistance => float fromMin;
+        return cfg.minDistance / (cfg.minDistance + cfg.rolloff * fromMin);
+    }
+
+    fun static float angularGain(vec3 dirA, vec3 dirB, SpatializerConfig cfg) {
+        if (cfg.coneInnerAngle >= Math.TWO_PI) {
+            return 1;
+        }
+
+        Math.cos(cfg.coneInnerAngle * 0.5) => float cutoffInner;
+        Math.cos(cfg.coneOuterAngle * 0.5) => float cutoffOuter;
+        dirA.dot(dirB) => float d;
+
+        if (d > cutoffInner) return 1;
+        if (d <= cutoffOuter) return cfg.coneOuterGain;
+        (d - cutoffOuter) / (cutoffInner - cutoffOuter) => float ratio;
+        return cfg.coneOuterGain + ratio * (1 - cfg.coneOuterGain);
+    }
+
+    fun static vec3 channelDir(int ch) {
+        if (ch == 0) return @(-1, 0, 0);
+        if (ch == 1) return @(1, 0, 0);
+        // invalid channel, return forwards
+        return @(0, 0, -1);
+    }
 }
 
 public class Source extends UGen_Stereo {
     vec3 pos;
-    float gains[2];
     SpatializerConfig cfg;
+
+    // linear gain interpolation
+    [0.0, 0.0] @=> float startGain[];
+    [1.0, 1.0] @=> float endGain[];
+    [now, now] @=> time startTime[];
+
+    startGain[0] => this.left.gain;
+    startGain[1] => this.right.gain;
 
     fun Source(UGen b) {
         b => this.left;
         b => this.right;
     }
 
-    fun updateGains(float newGains[]) {
-        // TODO: interpolation
+    fun updateGains(float newGain[]) {
+        for (int ch; ch < 2; ch++) {
+            if (newGain[ch] != endGain[ch]) {
+                this.chan(ch).gain() => startGain[ch];
+                newGain[ch] => endGain[ch];
+                now => startTime[ch];
+            }
+            (now - startTime[ch]) / cfg.smoothTime => float prog;
+            Std.clampf(prog, 0, 1) => prog;
+            startGain[ch] + prog * (endGain[ch] - startGain[ch]) => float interpGain;
+            interpGain => this.chan(ch).gain;
+        }
     }
 }
 
 class Listener {
     vec3 pos;
     vec3 dir;
+
+    // some listener defaults better for first person
     SpatializerConfig cfg;
+    pi*4/3 => cfg.coneInnerAngle;
+    0.5 => cfg.coneOuterGain;
 
     fun vec3 getRelativePos(Source s) {
         dir => vec3 axisZ; axisZ.normalize();
@@ -62,9 +113,7 @@ class Listener {
         getRelativePos(s) => vec3 relativePos;
         relativePos.magnitude() => float distance;
 
-        1 => float gain;
-
-        // TODO: attenuation
+        AudioUtils.attenuationInverse(distance, s.cfg) => float gain;
 
         // normalize position (with clamping at low values)
         @(0, 0, 0) => vec3 unitPos;
@@ -77,7 +126,8 @@ class Listener {
         // angular attenuation
         // unlike with miniaudio, we only attenuate the listener
         if (distance > 0) {
-            // TODO: calculate angular gain
+            @(0, 0, -1) => vec3 listenerDirection;
+            AudioUtils.angularGain(listenerDirection, unitPos, cfg) *=> gain;
         }
 
         Std.clampf(gain, cfg.minGain, cfg.maxGain) => gain;
@@ -86,8 +136,9 @@ class Listener {
 
         // panning
         if (distance > 0) {
-            for (int iChannel; iChannel <= 1; iChannel++) {
-                1 => float d; // TODO: get directional attenuation factor
+            for (int iChannel; iChannel < 2; iChannel++) {
+                unitPos.dot(AudioUtils.channelDir(iChannel)) => float dirDot;
+                1 + s.cfg.directionalAttenuationFactor * (dirDot - 1) => float d;
                 s.cfg.minSpatializationChannelGain => float dMin;
                 (d + 1) * 0.5 => d;
                 Math.max(d, dMin) => d;
@@ -95,7 +146,7 @@ class Listener {
             }
         }
 
-        // TODO: run through gainer on source
+        s.updateGains(channelGains);
     }
 }
 
