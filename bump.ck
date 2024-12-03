@@ -1,4 +1,6 @@
 // from https://github.com/kikito/bump.lua/blob/master/bump.lua
+// this implementation doesn't have cells because those are too hard to translate
+// due to lua's very liberal typing
 @import { "utils.ck" }
 
 class BUtils {
@@ -11,20 +13,48 @@ class BUtils {
             return b;
         }
     }
+
+    fun static int cmpCol(CollisionResult a, CollisionResult b) {
+        if (a.ti == b.ti) {
+            a.itemRect @=> BRect ir;
+            a.otherRect @=> BRect ar;
+            b.otherRect @=> BRect br;
+            ir.getSquareDistance(ar) => float ad;
+            ir.getSquareDistance(br) => float bd;
+            return ad < bd;
+        }
+        return a.ti < b.ti;
+    }
+
+    // bubble sort :P
+    fun static void sortByTiAndDistance(CollisionResult col[]) {
+        for (int i; i < col.size()-1; i++) {
+            for (i => int j; j < col.size()-1; j++) {
+                if (cmpCol(col[j], col[j+1])) {
+                    col[j] @=> CollisionResult tmp;
+                    col[j+1] @=> col[j];
+                    tmp @=> col[j+1];
+                }
+            }
+        }
+    }
 }
 
-class CollisionResult {
+public class CollisionResult {
     1 => int success;
     int overlaps;
     float ti;
     vec2 move;
     vec2 normal;
     vec2 touch;
+    vec2 slide;
+    string item;
+    string other;
     BRect itemRect;
     BRect otherRect;
 }
 
-class BRect {
+public class BRect {
     float x;
     float y;
     float w;
@@ -217,118 +247,97 @@ class BRect {
     }
 }
 
-class Grid {
-    float cellSize;
+public class MoveResult {
+    float x;
+    float y; 
+    CollisionResult cols[0];
 
-    fun vec2 toWorld(float cx, float cy) {
-        return @((cx-1)*cellSize, (cy-1)*cellSize);
-    }
-
-    fun vec2 toCell(float x, float y) {
-        return @(
-            Math.floor(x / cellSize) + 1,
-            Math.floor(y / cellSize) + 1
-        );
-    }
-
-    fun vec3 traverseInitStep(float ct, float t1, float t2) {
-        t2 - t1 => float v;
-        if (v > 0) {
-            return @(1, cellSize/v, ((ct + v) * cellSize - t1) / v);
-        } else if (v < 0) {
-            return @(-1, -cellSize / v, ((ct + v - 1) * cellSize - t1) / v);
-        } else {
-            return @(0, Math.INFINITY, Math.INFINITY);
-        }
-    }
-
-    // puts into out a list of traversed cells
-    fun void traverse(float x1, float y1, float x2, float y2, vec2 out[]) {
-        toCell(x1, y1) => vec2 c1;
-        toCell(x2, y2) => vec2 c2;
-        traverseInitStep(c1.x, x1, x2) => vec3 irx;
-        irx.x => float stepX; irx.y => float dx; irx.z => float tx;
-        traverseInitStep(c1.y, y1, y2) => vec3 iry;
-        iry.x => float stepY; iry.y => float dy; iry.z => float ty;
-
-        c1.x => float cx;
-        c1.y => float cy;
-        out << @(cx, cy);
-
-        while (Math.fabs(cx - c2.x) + Math.fabs(cy - c2.y) > 1) {
-            if (tx < ty) {
-                dx +=> tx;
-                stepX +=> cx;
-                out << @(cx, cy);
-            } else {
-                if (tx == ty) {
-                    out << @(cx + stepX, cy);
-                }
-                dy +=> ty;
-                stepY +=> cy;
-                out << @(cx, cy);
-            }
-        }
-
-        if (cx != c2.x || cy != c2.y) {
-            out << @(c2.x, c2.y);
-        }
-    }
-
-    fun vec4 toCellRect(BRect r) {
-        toCell(r.x, r.y) => vec2 c;
-        Math.ceil((r.x + r.w) / cellSize) => float cr;
-        Math.ceil((r.y + r.h) / cellSize) => float cb;
-        return @(c.x, c.y, cr - c.x + 1, cb - c.y + 1);
-    }
-}
-
-class Cell {
-    0 => int itemCount;
-    int itemSet[0]; // associative array
-    string items[0]; // might contain deleted items, always check itemSet
-    int x; int y;
-
-    fun Cell(int _x, int _y) {
+    fun MoveResult(float _x, float _y, CollisionResult _cols[]) {
         _x => x;
         _y => y;
-    }
-
-    fun int hasItem(string item) {
-        return itemSet[item] == 1;
-    }
-    fun void addItem(string item) {
-        1 => itemSet[item];
-        items << item;
-    }
-    fun void removeItem(string item) {
-        if (hasItem(item)) {
-            0 => itemSet[item];
-        }
+        _cols @=> cols;
     }
 }
 
 public class Bump {
-    Grid g; 64 => g.cellSize;
-    // unlike in the lua one rows can't be garbage collected,
-    // could potentially add manual garbage collection
-    Cell rows[0];
-    int nonEmptyCells[0];
+    BRect rects[0];
 
-    fun string _cellId(int cx, int cy) {
-        return cx + "," + cy;
-    }
-
-    fun Cell _getCell(int cx, int cy) {
-        _cellId(cx, cy) => string s;
-        if (rows[s] == null) {
-            new Cell(cx, cy) @=> rows[s];
+    fun MoveResult slide(CollisionResult col, BRect r, float goalX, float goalY) {
+        if (col.move.x != 0 || col.move.y != 0) {
+            if (col.normal.x != 0) {
+                col.touch.x => goalX;
+            } else {
+                col.touch.y => goalY;
+            }
         }
-        return rows[s];
+
+        @(goalX, goalY) => col.slide;
+        CollisionResult cols[0];
+        BRect nr(col.touch.x, col.touch.y, r.w, r.h);
+        project(col.item, nr, goalX, goalY, cols);
+        return new MoveResult(goalX, goalY, cols);
+    }
+    
+    fun project(string item, BRect r, float goalX, float goalY, CollisionResult out[]) {
+        string otherItems[0];
+        rects.getKeys(otherItems);
+        for (string other : otherItems) {
+            if (other == item) continue;
+            r.detectCollision(rects[other], goalX, goalY) @=> CollisionResult res;
+            if (res.success) {
+                other => res.other;
+                item => res.item;
+                out << res;
+            }
+        }
+        BUtils.sortByTiAndDistance(out);
     }
 
-    fun _addItemToCell(string item, int cx, int cy) {
-        _getCell(cx, cy) @=> Cell @ cell;
-        1 => nonEmptyCells[_cellId(cx, cy)]
+    fun void add(string item, BRect r) {
+        if (rects.isInMap(item)) {
+            <<< "Rectangle", r, "is already added to world" >>>;
+            return;
+        }
+        r @=> rects[item];
+    }
+
+    fun void update(string item, float x, float y) {
+        x => rects[item].x;
+        y => rects[item].y;
+    }
+
+    fun MoveResult move(string item, float goalX, float goalY) {
+        check(item, goalX, goalY) @=> MoveResult res;
+        update(item, res.x, res.y);
+        return res;
+    }
+
+    fun MoveResult check(string item, float goalX, float goalY) {
+        CollisionResult cols[0];
+
+        CollisionResult projectedCols[0];
+        project(item, rects[item], goalX, goalY, projectedCols);
+
+        int visited[0];
+        true => visited[item];
+
+        while (true) {
+            CollisionResult @ col;
+            for (int i; i < projectedCols.size(); i++) {
+                if (!visited[projectedCols[i].other]) {
+                    projectedCols[i] @=> col;
+                    break;
+                }
+            }
+            if (col == null) break;
+
+            cols << col;
+            true => visited[col.other];
+            slide(col, rects[item], goalX, goalY) @=> MoveResult moveRes;
+            moveRes.x => goalX;
+            moveRes.y => goalY;
+            moveRes.cols @=> projectedCols;
+        }
+        return new MoveResult(goalX, goalY, cols);
     }
 }
