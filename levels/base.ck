@@ -1,10 +1,16 @@
-@import { "../player.ck", "../utils.ck" }
+@import {
+    "../player.ck", 
+    "../utils.ck", 
+    "../things/platforms/base.ck",
+    "../things/walls/base.ck"
+}
 
 // Base class for a game level.
 public class Level extends GGen {
     float _startRot;
     vec2 _spawn;
     Platform _plats[0];
+    Wall _walls[0];
 
     fun setSpawn(vec2 pos) {
         pos => _spawn;
@@ -18,6 +24,11 @@ public class Level extends GGen {
     fun addPlatform(Platform @ plat) {
         plat --> this;
         _plats << plat;
+    }
+
+    fun addWall(Wall @ wall) {
+        wall --> this;
+        _walls << wall;
     }
 
     fun _sortPlatforms() {

@@ -1,4 +1,4 @@
-@import { "base.ck", "../utils.ck" }
+@import { "base.ck", "../../utils.ck" }
 
 // platform that wins the level upon touch
 public class FinishPlatform extends Platform {

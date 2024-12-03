@@ -67,6 +67,14 @@ public class BRect {
         _h => h;
     }
 
+    // from x1 y1 x2 y2
+    fun BRect(vec4 bounds) {
+        bounds.x => x;
+        bounds.y => y;
+        bounds.z - bounds.x => w;
+        bounds.w - bounds.y => h;
+    }
+
     fun vec2 getNearestCorner(float px, float py) {
         return @(BUtils.nearest(px, x, x+w), BUtils.nearest(py, y, y+h));
     }
@@ -299,6 +307,10 @@ public class Bump {
             return;
         }
         r @=> rects[item];
+    }
+
+    fun void remove(string item) {
+        rects.erase(item);
     }
 
     fun void update(string item, float x, float y) {

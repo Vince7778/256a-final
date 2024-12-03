@@ -1,4 +1,4 @@
-@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck" }
+@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck" }
 
 // Game controller. Manages the player, level, and sound orbs.
 public class Controller extends GGen {
@@ -10,6 +10,7 @@ public class Controller extends GGen {
     State_Placing => int state;
     Player player;
     Level level;
+    Bump bump;
     SoundOrb orbs[3];
 
     [0.0, 1.0/3, 2.0/3] @=> float orbHues[];
@@ -24,7 +25,7 @@ public class Controller extends GGen {
 
     fun Controller(GScene scene, string levelPath) {
         this --> scene;
-        LevelReader.read(levelPath) @=> level;
+        LevelReader.read(levelPath, bump) @=> level;
         level --> this;
         player --> this;
         [null, null, null] @=> orbs;

@@ -1,4 +1,4 @@
-@import { "platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck" }
+@import { "things/platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck" }
 
 GWindow.fullscreen();
 GWindow.mouseMode(GWindow.MouseMode_Disabled);

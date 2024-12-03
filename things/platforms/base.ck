@@ -1,4 +1,4 @@
-@import { "../utils.ck", "../player.ck" }
+@import { "../../utils.ck", "../../player.ck" }
 
 // base class for all platform types
 // should never be moved, rotated, or scaled using the GGen methods

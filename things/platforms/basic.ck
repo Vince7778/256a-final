@@ -1,4 +1,4 @@
-@import { "base.ck", "../utils.ck" }
+@import { "base.ck", "../../utils.ck" }
 
 // just your regular old gray platform
 public class BasicPlatform extends Platform {
