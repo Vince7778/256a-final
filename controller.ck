@@ -8,9 +8,9 @@ public class Controller extends GGen {
     4 => static int State_Win;
 
     State_Placing => int state;
-    Player player;
     Level level;
     Bump bump;
+    Player player(bump);
     SoundOrb orbs[3];
 
     [0.0, 1.0/3, 2.0/3] @=> float orbHues[];

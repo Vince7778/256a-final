@@ -54,7 +54,7 @@ public class Level extends GGen {
 
     fun start(Player @ p) {
         p.reset();
-        p.pos(@(_spawn.x, 0, _spawn.y));
+        p.setPos(@(_spawn.x, 0, _spawn.y));
         p.rotateY(_startRot);
     }
 

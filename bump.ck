@@ -5,6 +5,7 @@
 
 class BUtils {
     1e-10 => static float DELTA;
+    1e100 => static float BIG;
 
     fun static float nearest(float x, float a, float b) {
         if (Math.fabs(a-x) < Math.fabs(b-x)) {
@@ -120,6 +121,7 @@ public class BRect {
             }
         } else {
             q / p => r;
+            <<< r, ti1, ti2 >>>;
             if (p < 0) {
                 if (r > ti2) return 0;
                 else if (r > ti1) {
@@ -185,6 +187,7 @@ public class BRect {
         float ti;
         float nx;
         float ny;
+        0 => int setTi;
 
         if (d.containsPoint(0, 0)) {
             d.getNearestCorner(0, 0) => vec2 p;
@@ -192,9 +195,14 @@ public class BRect {
             Math.min(h, Math.fabs(p.y)) => float hi;
             -wi * hi => ti;
             true => overlaps;
+            <<< "overlaps" >>>;
+            1 => setTi;
         } else {
             float inters[6];
-            if (d.getSegmentIntersectionIndices(0, 0, dx, dy, -Math.INFINITY, Math.INFINITY, inters)) {
+            if (d.getSegmentIntersectionIndices(0, 0, dx, dy, -BUtils.BIG, BUtils.BIG, inters)) {
+                for (int aaa; aaa < 6; aaa++) {
+                    <<< aaa, inters[aaa] >>>;
+                }
                 if (inters[0] < 1
                         && Math.fabs(inters[0] - inters[1]) >= BUtils.DELTA
                         && (0 < inters[0] + BUtils.DELTA || (inters[0] == 0 && inters[1] > 0))) {
@@ -202,11 +210,12 @@ public class BRect {
                     inters[2] => nx;
                     inters[3] => ny;
                     false => overlaps;
+                    1 => setTi;
                 }
             }
         }
 
-        if (ti == 0) {
+        if (!setTi) {
             CollisionResult res;
             0 => res.success;
             return res;
@@ -228,7 +237,7 @@ public class BRect {
                 y + p.y => ty;
             } else {
                 float inters[6];
-                if (!d.getSegmentIntersectionIndices(0, 0, dx, dy, -Math.INFINITY, 1, inters)) {
+                if (!d.getSegmentIntersectionIndices(0, 0, dx, dy, -BUtils.BIG, 1, inters)) {
                     CollisionResult res;
                     0 => res.success;
                     return res;
@@ -342,10 +351,12 @@ public class Bump {
                 }
             }
             if (col == null) break;
+            <<< "collided" >>>;
 
             cols << col;
             true => visited[col.other];
             slide(col, rects[item], goalX, goalY) @=> MoveResult moveRes;
+            <<< "moving goal from", goalX, goalY, "to", moveRes.x, moveRes.y >>>;
             moveRes.x => goalX;
             moveRes.y => goalY;
             moveRes.cols @=> projectedCols;

@@ -1,6 +1,6 @@
 @import { "things/platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck" }
 
-GWindow.fullscreen();
+// GWindow.fullscreen();
 GWindow.mouseMode(GWindow.MouseMode_Disabled);
 GWindow.mouseDeltaPos();
 GG.nextFrame() => now;

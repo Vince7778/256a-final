@@ -1,3 +1,5 @@
+@import { "bump.ck" }
+
 // Player controller
 public class Player extends GGen {
     0.8 => static float EYE_HEIGHT;
@@ -17,8 +19,20 @@ public class Player extends GGen {
 
     0 => int isBlind;
 
+    Bump @ _bump;
+
+    fun Player(Bump @ bump) {
+        bump @=> _bump;
+        bump.add("player", new BRect(getAABB()));
+    }
+
     fun setSceneCam(GScene @ scene) {
         scene.camera(_cam);
+    }
+
+    fun setPos(vec3 p) {
+        pos(p);
+        _bump.update("player", posX()-WIDTH/2, posZ()-WIDTH/2);
     }
 
     fun reset() {
@@ -61,7 +75,12 @@ public class Player extends GGen {
             if (GWindow.key(GWindow.Key_S) || GWindow.key(GWindow.Key_Down)) {
                 -1 * normForward * MOVE_SPEED +=> curVel;
             }
-            translate(curVel * dt);
+
+            posX() - WIDTH/2 + curVel.x * dt => float goalX;
+            posZ() - WIDTH/2 + curVel.z * dt => float goalY;
+            _bump.move("player", goalX, goalY) @=> MoveResult moveRes;
+            posX(moveRes.x + WIDTH/2);
+            posZ(moveRes.y + WIDTH/2);
         }
     }
 
