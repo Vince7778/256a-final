@@ -1,0 +1,16 @@
+// level with a button that lowers a wall
+spawn 0 0 180
+p basic 0 -2 -2 2 2
+| nwe
+p basic 0 -2 2 2 6
+p basic 0 -4 6 4 10
+p basic 0 -8 6 -4 10
+| nsw
+p basic 0 4 6 8 10
+| nes
+p finish 2 5 7 7 9
+
+signal buttonSignal
+button 2 -7 7 -5 9 255 0 0 buttonSignal
+// TODO
+// w gate 2 6 2 10 buttonSignal

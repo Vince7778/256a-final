@@ -2,15 +2,18 @@
     "../player.ck", 
     "../utils.ck", 
     "../things/platforms/base.ck",
-    "../things/walls/base.ck"
+    "../things/walls/base.ck",
+    "../signal.ck"
 }
 
 // Base class for a game level.
 public class Level extends GGen {
     float _startRot;
     vec2 _spawn;
+
     Platform _plats[0];
     Wall _walls[0];
+    Signal _signals[0];
 
     fun setSpawn(vec2 pos) {
         pos => _spawn;
@@ -29,6 +32,22 @@ public class Level extends GGen {
     fun addWall(Wall @ wall) {
         wall --> this;
         _walls << wall;
+    }
+
+    fun addSignal(Signal @ signal) {
+        if (_signals.isInMap(signal.name)) {
+            <<< "Error: Signal", signal.name, "already added" >>>;
+            return;
+        }
+        signal @=> _signals[signal.name];
+    }
+
+    fun Signal getSignal(string name) {
+        if (!_signals.isInMap(name)) {
+            <<< "Error: Signal", name, "not found" >>>;
+            return null;
+        }
+        return _signals[name];
     }
 
     fun _sortPlatforms() {
@@ -66,5 +85,13 @@ public class Level extends GGen {
             }
         }
         return null;
+    }
+
+    fun update() {
+        string signalNames[0];
+        _signals.getKeys(signalNames);
+        for (string name : signalNames) {
+            _signals[name].check();
+        }
     }
 }

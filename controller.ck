@@ -81,6 +81,7 @@ public class Controller extends GGen {
                 State_Win => state;
             }
         }
+        level.update();
 
         if (state == State_Placing) {
             if (GWindow.keyDown(GWindow.Key_R)) {

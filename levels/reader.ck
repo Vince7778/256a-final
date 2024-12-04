@@ -4,8 +4,10 @@
     "../things/platforms/base.ck", 
     "../things/platforms/basic.ck", 
     "../things/platforms/finish.ck", 
+    "../things/platforms/button.ck",
     "../things/walls/base.ck",
     "../things/walls/basic.ck",
+    "../signal.ck",
     "../bump.ck"
 }
 
@@ -39,7 +41,7 @@ public class LevelReader {
         }
     }
 
-    fun static Wall readWall(NameGenerator @ gen, StringTokenizer @ tok, Bump @ bump) {
+    fun static Wall readWall(Level @ l, NameGenerator @ gen, StringTokenizer @ tok, Bump @ bump) {
         if (!tok.more()) {
             <<< "Error: when reading level file: Missing wall type" >>>;
             return null;
@@ -54,6 +56,25 @@ public class LevelReader {
             <<< "Error: when reading level file: Unrecognized wall type", wallType >>>;
             return null;
         }
+    }
+
+    fun static Signal readSignal(StringTokenizer @ tok) {
+        if (!tok.more()) {
+            <<< "Error: when reading level file: Missing signal name" >>>;
+            return null;
+        }
+        tok.next() => string signalName;
+        return new Signal(signalName);
+    }
+
+    fun static Button readButton(Level @ l, StringTokenizer @ tok) {
+        tok.next().toFloat() => float priority;
+        Utils.readVec4(tok) => vec4 bounds;
+        Utils.readVec3(tok) => vec3 color;
+        tok.next() => string signalName;
+        
+        l.getSignal(signalName) @=> Signal @ sig;
+        return new Button(priority, bounds, color, sig);
     }
 
     fun static void attachWalls(string dirs, Level @ l, Platform @ plat, NameGenerator @ gen, Bump @ bump) {
@@ -108,7 +129,7 @@ public class LevelReader {
                 readPlatform(tok) @=> lastPlatform;
                 l.addPlatform(lastPlatform);
             } else if (lineType == "w") {
-                l.addWall(readWall(nameGen, tok, bump));
+                l.addWall(readWall(l, nameGen, tok, bump));
             } else if (lineType == "|") {
                 if (lastPlatform == null) {
                     <<< "Error: Cannot attach walls without declaring a platform first" >>>;
@@ -116,6 +137,10 @@ public class LevelReader {
                 }
                 tok.next() => string dirs;
                 attachWalls(dirs, l, lastPlatform, nameGen, bump);
+            } else if (lineType == "signal") {
+                l.addSignal(readSignal(tok));
+            } else if (lineType == "button") {
+                l.addPlatform(readButton(l, tok));
             } else {
                 <<< "Error: Unrecognized line type in level", filepath, ":", lineType >>>;
             }
