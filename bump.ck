@@ -76,6 +76,10 @@ public class BRect {
         bounds.w - bounds.y => h;
     }
 
+    fun string toString() {
+        return "(" + x + ", " + y + ", " + w + ", " + h + ")";
+    }
+
     fun vec2 getNearestCorner(float px, float py) {
         return @(BUtils.nearest(px, x, x+w), BUtils.nearest(py, y, y+h));
     }
@@ -113,28 +117,27 @@ public class BRect {
                 dy => p;
                 y + h - y1 => q;
             }
-        }
 
-        if (p == 0) {
-            if (q <= 0) {
-                return 0;
-            }
-        } else {
-            q / p => r;
-            <<< r, ti1, ti2 >>>;
-            if (p < 0) {
-                if (r > ti2) return 0;
-                else if (r > ti1) {
-                    r => ti1;
-                    nx => nx1;
-                    ny => ny1;
+            if (p == 0) {
+                if (q <= 0) {
+                    return 0;
                 }
             } else {
-                if (r < ti1) return 0;
-                else if (r < ti2) {
-                    r => ti2;
-                    nx => nx2;
-                    ny => ny2;
+                q / p => r;
+                if (p < 0) {
+                    if (r > ti2) return 0;
+                    else if (r > ti1) {
+                        r => ti1;
+                        nx => nx1;
+                        ny => ny1;
+                    }
+                } else {
+                    if (r < ti1) return 0;
+                    else if (r < ti2) {
+                        r => ti2;
+                        nx => nx2;
+                        ny => ny2;
+                    }
                 }
             }
         }
@@ -195,14 +198,10 @@ public class BRect {
             Math.min(h, Math.fabs(p.y)) => float hi;
             -wi * hi => ti;
             true => overlaps;
-            <<< "overlaps" >>>;
             1 => setTi;
         } else {
             float inters[6];
             if (d.getSegmentIntersectionIndices(0, 0, dx, dy, -BUtils.BIG, BUtils.BIG, inters)) {
-                for (int aaa; aaa < 6; aaa++) {
-                    <<< aaa, inters[aaa] >>>;
-                }
                 if (inters[0] < 1
                         && Math.fabs(inters[0] - inters[1]) >= BUtils.DELTA
                         && (0 < inters[0] + BUtils.DELTA || (inters[0] == 0 && inters[1] > 0))) {
@@ -312,7 +311,7 @@ public class Bump {
 
     fun void add(string item, BRect r) {
         if (rects.isInMap(item)) {
-            <<< "Rectangle", r, "is already added to world" >>>;
+            <<< "Rectangle", item, "is already added to world" >>>;
             return;
         }
         r @=> rects[item];
@@ -351,12 +350,10 @@ public class Bump {
                 }
             }
             if (col == null) break;
-            <<< "collided" >>>;
 
             cols << col;
             true => visited[col.other];
             slide(col, rects[item], goalX, goalY) @=> MoveResult moveRes;
-            <<< "moving goal from", goalX, goalY, "to", moveRes.x, moveRes.y >>>;
             moveRes.x => goalX;
             moveRes.y => goalY;
             moveRes.cols @=> projectedCols;

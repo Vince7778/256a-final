@@ -77,6 +77,7 @@ public class LevelReader {
                 l.addPlatform(readPlatform(tok));
             } else if (lineType == "w") {
                 "wall" + wallCounter => string wallName;
+                wallCounter++;
                 l.addWall(readWall(wallName, tok, bump));
             } else {
                 <<< "Error: Unrecognized line type in level", filepath, ":", lineType >>>;
