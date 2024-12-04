@@ -9,11 +9,11 @@ public class Wall extends GGen {
     string _name; // each wall needs a name for bump
     BRect _hitbox;
 
-    fun void addToBump(Bump bump) {
+    fun void addToBump(Bump @ bump) {
         bump.add(_name, _hitbox);
     }
 
-    fun void removeFromBump(Bump bump) {
+    fun void removeFromBump(Bump @ bump) {
         bump.remove(_name);
     }
 }

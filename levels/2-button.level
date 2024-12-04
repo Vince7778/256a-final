@@ -12,5 +12,4 @@ p finish 2 5 7 7 9
 
 signal buttonSignal
 button 2 -7 7 -5 9 255 0 0 buttonSignal
-// TODO
-// w gate 2 6 2 10 buttonSignal
+w gate 3 6 3 10 255 0 0 buttonSignal

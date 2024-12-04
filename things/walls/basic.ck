@@ -6,7 +6,7 @@ public class BasicWall extends Wall {
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.1);
 
-    fun BasicWall(string name, vec4 bounds, Bump bump) {
+    fun BasicWall(string name, vec4 bounds, Bump @ bump) {
         Utils.fixBounds(bounds) => bounds;
         Utils.jut(bounds, THICKNESS) => bounds;
         new BRect(bounds) @=> _hitbox;

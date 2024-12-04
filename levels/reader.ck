@@ -7,6 +7,7 @@
     "../things/platforms/button.ck",
     "../things/walls/base.ck",
     "../things/walls/basic.ck",
+    "../things/walls/gate.ck",
     "../signal.ck",
     "../bump.ck"
 }
@@ -52,6 +53,12 @@ public class LevelReader {
         if (wallType == "basic") {
             Utils.readVec4(tok) => vec4 bounds;
             return new BasicWall(wallName, bounds, bump);
+        } else if (wallType == "gate") {
+            Utils.readVec4(tok) => vec4 bounds;
+            Utils.readVec3(tok) / 255.0 => vec3 color;
+            tok.next() => string signalName;
+            l.getSignal(signalName) @=> Signal @ sig;
+            return new GateWall(wallName, bounds, color, sig, bump);
         } else {
             <<< "Error: when reading level file: Unrecognized wall type", wallType >>>;
             return null;
@@ -70,7 +77,7 @@ public class LevelReader {
     fun static Button readButton(Level @ l, StringTokenizer @ tok) {
         tok.next().toFloat() => float priority;
         Utils.readVec4(tok) => vec4 bounds;
-        Utils.readVec3(tok) => vec3 color;
+        Utils.readVec3(tok) / 255.0 => vec3 color;
         tok.next() => string signalName;
         
         l.getSignal(signalName) @=> Signal @ sig;
