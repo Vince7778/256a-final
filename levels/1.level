@@ -3,7 +3,9 @@
 // to guide yourself around the corner
 spawn 0 0 -30
 p basic 0 -2 -2 2 2
+| esw
 p basic 0 -0.6 -2 0.6 -6.6
 p basic 0 0.6 -6.6 4 -5.4
 p basic 0 4 -4 8 -8
+| nes
 p finish 10 5 -5 7 -7

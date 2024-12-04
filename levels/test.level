@@ -17,12 +17,16 @@ spawn 0 0 30
 // Arguments are priority, and x1, z1, x2, z2 describing opposite corners.
 p basic 0 -2 -2 2 2
 p basic 0 -1 -2 1 -6
-p basic 0 -2 -6 2 -10
 
-// This is a wall (todo: finish docs)
-w basic -2 -10 2 -10
-w basic 2 -10 2 -6
-w basic -2 -10 -2 -6
+// These are walls, which the player can't walk past
+w basic -2 2 2 2
+w basic -2 2 -2 -2
+w basic 2 2 2 -2
+
+// You can attach walls to the most recently placed platform using | (basic walls only)
+// north = -z, east = +x
+p basic 0 -2 -6 2 -10
+| nwe
 
 // This is the finish platform, if the player is on top of it the level ends!
 p finish 10 -1.5 -6.5 1.5 -9.5

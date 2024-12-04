@@ -23,6 +23,9 @@ public class Platform extends GGen {
     // player will not fall if they collide with this region
     // player will interact if their center falls within this region
     vec4 _hitbox;
+    fun vec4 getHitbox() {
+        return _hitbox;
+    }
 
     // priority of platform
     // higher priority means renders on top and gets updates first

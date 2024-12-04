@@ -10,7 +10,7 @@ GG.nextFrame() => now;
 GG.scene().light().rotY(pi/5);
 
 // BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
-["levels/test.level", "levels/1.level"] @=> string levels[];
+["levels/1.level"] @=> string levels[];
 0 => int curLevel;
 
 Controller controller(GG.scene(), levels[curLevel]);

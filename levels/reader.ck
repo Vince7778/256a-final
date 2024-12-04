@@ -9,6 +9,14 @@
     "../bump.ck"
 }
 
+class NameGenerator {
+    0 => int ind;
+    fun string gen(string prefix) {
+        1 +=> ind;
+        return prefix + "_" + ind;
+    }
+}
+
 // Class that reads levels from a file.
 public class LevelReader {
     fun static Platform readPlatform(StringTokenizer @ tok) {
@@ -31,19 +39,41 @@ public class LevelReader {
         }
     }
 
-    fun static Wall readWall(string wallName, StringTokenizer @ tok, Bump bump) {
+    fun static Wall readWall(NameGenerator @ gen, StringTokenizer @ tok, Bump @ bump) {
         if (!tok.more()) {
             <<< "Error: when reading level file: Missing wall type" >>>;
             return null;
         }
 
         tok.next() => string wallType;
+        gen.gen("wall_" + wallType) => string wallName;
         if (wallType == "basic") {
             Utils.readVec4(tok) => vec4 bounds;
             return new BasicWall(wallName, bounds, bump);
         } else {
             <<< "Error: when reading level file: Unrecognized wall type", wallType >>>;
             return null;
+        }
+    }
+
+    fun static void attachWalls(string dirs, Level @ l, Platform @ plat, NameGenerator @ gen, Bump @ bump) {
+        plat.getHitbox() => vec4 hb;
+        for (int i; i < dirs.length(); i++) {
+            vec4 bounds;
+            if (dirs.charAt(i) == 'n') {
+                @(hb.x, hb.y, hb.z, hb.y) => bounds;
+            } else if (dirs.charAt(i) == 'e') {
+                @(hb.z, hb.y, hb.z, hb.w) => bounds;
+            } else if (dirs.charAt(i) == 's') {
+                @(hb.x, hb.w, hb.z, hb.w) => bounds;
+            } else if (dirs.charAt(i) == 'w') {
+                @(hb.x, hb.y, hb.x, hb.w) => bounds;
+            } else {
+                <<< "Error: when reading level file: Unrecognized attach direction", dirs.substring(i, 1) >>>;
+                continue;
+            }
+            BasicWall wall(gen.gen("attach_wall"), bounds, bump);
+            l.addWall(wall);
         }
     }
 
@@ -57,7 +87,8 @@ public class LevelReader {
 
         Level l;
         StringTokenizer tok;
-        0 => int wallCounter;
+        NameGenerator nameGen;
+        Platform @ lastPlatform;
 
         while (io.more()) {
             io.readLine() => string line;
@@ -74,11 +105,17 @@ public class LevelReader {
                     l.setStartRot(startRot);
                 }
             } else if (lineType == "p") {
-                l.addPlatform(readPlatform(tok));
+                readPlatform(tok) @=> lastPlatform;
+                l.addPlatform(lastPlatform);
             } else if (lineType == "w") {
-                "wall" + wallCounter => string wallName;
-                wallCounter++;
-                l.addWall(readWall(wallName, tok, bump));
+                l.addWall(readWall(nameGen, tok, bump));
+            } else if (lineType == "|") {
+                if (lastPlatform == null) {
+                    <<< "Error: Cannot attach walls without declaring a platform first" >>>;
+                    continue;
+                }
+                tok.next() => string dirs;
+                attachWalls(dirs, l, lastPlatform, nameGen, bump);
             } else {
                 <<< "Error: Unrecognized line type in level", filepath, ":", lineType >>>;
             }
