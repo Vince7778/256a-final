@@ -71,10 +71,27 @@ public class Level extends GGen {
         }
     }
 
-    fun start(Player @ p) {
+    fun spawn(Player @ p) {
         p.reset();
         p.setPos(@(_spawn.x, 0, _spawn.y));
         p.rotateY(_startRot);
+    }
+
+    // soft reset; only moves player + resets buttons
+    fun reset(Player @ p) {
+        spawn(p);
+        for (Platform @ plat : _plats) {
+            plat.reset();
+        }
+        for (Wall @ wall : _walls) {
+            wall.reset();
+        }
+
+        string signalNames[0];
+        _signals.getKeys(signalNames);
+        for (string name : signalNames) {
+            _signals[name].reset();
+        }
     }
 
     // returns the platform that the player is interacting with

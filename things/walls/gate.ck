@@ -16,6 +16,12 @@ public class GateWall extends Wall {
     3.0 => static float HEIGHT;
     60 => static int RETRACT_FRAMES;
 
+    0 => static int STATE_UP;
+    1 => static int STATE_RETRACTING;
+    2 => static int STATE_RETRACTED;
+
+    STATE_UP => int retractState;
+
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.1);
 
@@ -46,10 +52,23 @@ public class GateWall extends Wall {
     }
 
     fun retract() {
+        if (retractState != STATE_UP) return;
+        STATE_RETRACTING => retractState;
         for (int i; i < RETRACT_FRAMES; i++) {
             GG.nextFrame() => now;
+            // cancel retracting if reset
+            if (retractState != STATE_RETRACTING) return;
             _cube.posY(-HEIGHT / 2.0 + WALL_STEP * (RETRACT_FRAMES - i - 1.0) / RETRACT_FRAMES + 0.0001);
         }
+        STATE_RETRACTED => retractState;
         removeFromBump(_bump);
+    }
+
+    fun reset() {
+        if (retractState != STATE_UP) {
+            _cube.posY(-HEIGHT / 2.0 + WALL_STEP);
+            if (retractState == STATE_RETRACTED) addToBump(_bump);
+            STATE_UP => retractState;
+        }
     }
 }

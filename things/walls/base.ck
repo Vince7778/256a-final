@@ -16,4 +16,6 @@ public class Wall extends GGen {
     fun void removeFromBump(Bump @ bump) {
         bump.remove(_name);
     }
+
+    fun void reset() {}
 }

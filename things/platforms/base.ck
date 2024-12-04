@@ -12,6 +12,8 @@ public class Platform extends GGen {
     // t is draw time, use this instead of `now` to make replays work
     fun upd(time t) {}
 
+    fun reset() {}
+
     fun int interact(Player @ p) {
         return Inter_Floor;
     }

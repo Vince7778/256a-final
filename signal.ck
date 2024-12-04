@@ -41,4 +41,8 @@ public class Signal {
         1 => used;
         return 1;
     }
+
+    fun void reset() {
+        0 => used;
+    }
 }

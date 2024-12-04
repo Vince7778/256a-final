@@ -43,4 +43,10 @@ public class Button extends Platform {
         }
         return Inter_Floor;
     }
+
+    fun void reset() {
+        _cube.posY(-HEIGHT / 2.0 + UNPRESSED_STEP);
+        0 => _pressed;
+        sender.setActive(false);
+    }
 }

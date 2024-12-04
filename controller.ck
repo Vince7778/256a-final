@@ -30,7 +30,7 @@ public class Controller extends GGen {
         player --> this;
         [null, null, null] @=> orbs;
         player.setSceneCam(scene);
-        level.start(player);
+        level.spawn(player);
     }
 
     fun _toggleOrb(int id) {
@@ -85,10 +85,10 @@ public class Controller extends GGen {
 
         if (state == State_Placing) {
             if (GWindow.keyDown(GWindow.Key_R)) {
-                level.start(player);
+                level.reset(player);
             } else if (GWindow.keyDown(GWindow.Key_Space)) {
                 player.toggleBlind();
-                level.start(player);
+                level.reset(player);
                 State_Blind => state;
             }
         } else if (state == State_Blind) {
@@ -96,12 +96,12 @@ public class Controller extends GGen {
             player._cam.rotX(-pi/6);
             if (GWindow.keyDown(GWindow.Key_Space)) {
                 player.toggleBlind();
-                level.start(player);
+                level.reset(player);
                 State_Placing => state;
             }
         } else if (state == State_BlindFall) {
             if (GWindow.keyDown(GWindow.Key_Space)) {
-                level.start(player);
+                level.reset(player);
                 State_Placing => state;
             }
         } else if (state == State_Win) {
