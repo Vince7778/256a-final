@@ -2,7 +2,7 @@
 
 public class Wall extends GGen {
     // how high a wall extends above the floor
-    0.6 => static float WALL_STEP;
+    0.4 => static float WALL_STEP;
     // how far beyond its initial line a wall juts
     0.1 => static float THICKNESS;
 

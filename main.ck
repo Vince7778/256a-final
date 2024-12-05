@@ -10,7 +10,13 @@ GG.nextFrame() => now;
 GG.scene().light().rotY(pi/5);
 
 // BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
-["levels/3-maze.level", "levels/2-button.level", "levels/1-basic.level"] @=> string levels[];
+[
+    "levels/3-maze.level", 
+    "levels/test.level", 
+    "levels/2-button.level", 
+    "levels/1-basic.level",
+    "levels/debug.level"
+] @=> string levels[];
 0 => int curLevel;
 
 SpatializerEngine engine => dac;

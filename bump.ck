@@ -4,7 +4,7 @@
 @import { "utils.ck" }
 
 class BUtils {
-    1e-10 => static float DELTA;
+    1e-7 => static float DELTA;
     1e100 => static float BIG;
 
     fun static float nearest(float x, float a, float b) {
@@ -354,6 +354,8 @@ public class Bump {
             cols << col;
             true => visited[col.other];
             slide(col, rects[item], goalX, goalY) @=> MoveResult moveRes;
+            // <<< "colliding with", col.other, now >>>;
+            // <<< "move goal from", goalX, goalY, "to", moveRes.x, moveRes.y >>>;
             moveRes.x => goalX;
             moveRes.y => goalY;
             moveRes.cols @=> projectedCols;
