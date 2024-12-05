@@ -1,9 +1,10 @@
 @import { "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck", "audio/spatializer.ck" }
 
-GWindow.fullscreen();
+// GWindow.fullscreen(1920, 1080);
 GWindow.mouseMode(GWindow.MouseMode_Disabled);
 GWindow.mouseDeltaPos();
 GG.nextFrame() => now;
+// 0.5::second => now; // give time to transition to fullscreen
 // GFlyCamera flyCam --> GG.scene();
 // GG.scene().camera(flyCam);
 
@@ -11,6 +12,7 @@ GG.scene().light().rotY(pi/5);
 
 [
     "levels/button.level",
+    "levels/maze2.level",
     "levels/maze.level",
     "levels/basic.level",
     "levels/test.level",
@@ -18,8 +20,7 @@ GG.scene().light().rotY(pi/5);
 ] @=> string levels[];
 0 => int curLevel;
 
-SpatializerEngine engine => dac;
-Controller controller(GG.scene(), GG.hud(), levels[curLevel], engine);
+Controller controller(GG.scene(), GG.hud(), levels[curLevel]);
 
 200 => int STAR_COUNT;
 GPoints backgroundStars --> GG.scene();
@@ -41,9 +42,9 @@ while (true) {
     if (controller.frame()) {
         1 +=> curLevel;
         levels.size() %=> curLevel;
-        controller.clearOrbs();
+        controller.cleanup();
         controller --< GG.scene();
-        new Controller(GG.scene(), GG.hud(), levels[curLevel], engine) @=> controller;
+        new Controller(GG.scene(), GG.hud(), levels[curLevel]) @=> controller;
     }
     // janky hack!
     backgroundStars.pos(controller.player.pos());

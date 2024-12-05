@@ -23,16 +23,15 @@ public class Controller extends GGen {
     Bump bump;
     null @=> Player @ player;
     
-    null @=> SpatializerEngine @ engine;
+    SpatializerEngine engine => dac;
     SoundOrb orbs[MAX_ORBS];
 
     Hud hud;
 
-    fun Controller(GScene scene, GScene hudScene, string levelPath, SpatializerEngine @ _engine) {
-        _engine @=> engine;
+    fun Controller(GScene scene, GScene hudScene, string levelPath) {
         this --> scene;
         hud --> hudScene;
-        LevelReader.read(levelPath, bump, _engine) @=> level;
+        LevelReader.read(levelPath, bump, engine) @=> level;
         level --> this;
         hud.setOrbLimit(level.maxOrbs);
         new Player(bump) @=> player;
@@ -122,7 +121,7 @@ public class Controller extends GGen {
             }
         } else if (state == State_Win) {
             if (GWindow.keyDown(GWindow.Key_Space)) {
-                return true;
+                return 1;
             }
         } else if (state == State_BlindClosing) {
             if (hud.eyeState == Hud.EyeState_Closed) {
@@ -164,10 +163,17 @@ public class Controller extends GGen {
                 orbs[i] --< this;
                 0 => orbs[i].isPlaced;
                 0 => orbs[i].isPlaying;
+                hud.setOrb(i, 0);
             } else if (orbs[i].isPlaying) {
                 0 => orbs[i].isPlaying;
+                hud.setOrb(i, 0);
             }
-            hud.setOrb(i, 0);
         }
+    }
+
+    fun void cleanup() {
+        clearOrbs();
+        engine =< dac;
+        hud --< GG.hud();
     }
 }
