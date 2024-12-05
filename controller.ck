@@ -17,7 +17,7 @@ public class Controller extends GGen {
     State_Placing => int state;
     Level level;
     Bump bump;
-    Player player(bump);
+    null @=> Player @ player;
     
     null @=> SpatializerEngine @ engine;
     SoundOrb orbs[MAX_ORBS];
@@ -28,6 +28,7 @@ public class Controller extends GGen {
         this --> scene;
         LevelReader.read(levelPath, bump, _engine) @=> level;
         level --> this;
+        new Player(bump) @=> player;
         player --> this;
         player.setSceneCam(scene);
         level.spawn(player);
