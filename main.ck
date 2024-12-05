@@ -20,7 +20,7 @@ GG.scene().light().rotY(pi/5);
 0 => int curLevel;
 
 SpatializerEngine engine => dac;
-Controller controller(GG.scene(), levels[curLevel], engine);
+Controller controller(GG.scene(), GG.hud(), levels[curLevel], engine);
 
 while (true) {
     GG.nextFrame() => now;
@@ -29,6 +29,6 @@ while (true) {
         levels.size() %=> curLevel;
         controller.clearOrbs();
         controller --< GG.scene();
-        new Controller(GG.scene(), levels[curLevel], engine) @=> controller;
+        new Controller(GG.scene(), GG.hud(), levels[curLevel], engine) @=> controller;
     }
 }

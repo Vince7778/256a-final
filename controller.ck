@@ -1,4 +1,4 @@
-@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck", "audio/spatializer.ck" }
+@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck", "audio/spatializer.ck", "hud.ck" }
 
 // Game controller. Manages the player, level, and sound orbs.
 public class Controller extends GGen {
@@ -22,11 +22,15 @@ public class Controller extends GGen {
     null @=> SpatializerEngine @ engine;
     SoundOrb orbs[MAX_ORBS];
 
-    fun Controller(GScene scene, string levelPath, SpatializerEngine @ _engine) {
+    Hud hud;
+
+    fun Controller(GScene scene, GScene hudScene, string levelPath, SpatializerEngine @ _engine) {
         _engine @=> engine;
         this --> scene;
+        hud --> hudScene;
         LevelReader.read(levelPath, bump, _engine) @=> level;
         level --> this;
+        hud.setOrbLimit(level.maxOrbs);
         new Player(bump) @=> player;
         player --> this;
         player.setSceneCam(scene);
@@ -49,10 +53,12 @@ public class Controller extends GGen {
                         ));
                         1 => orbs[i].isPlaced;
                         1 => orbs[i].isPlaying;
+                        hud.setOrb(i, 1);
                         orbs[i] --> this;
                     } else {
                         0 => orbs[i].isPlaced;
                         0 => orbs[i].isPlaying;
+                        hud.setOrb(i, 0);
                         orbs[i] --< this;
                     }
                 }
@@ -61,6 +67,7 @@ public class Controller extends GGen {
             for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {
                     !orbs[i].isPlaying => orbs[i].isPlaying;
+                    hud.setOrb(i, orbs[i].isPlaying);
                 }
             }
         }
@@ -99,14 +106,14 @@ public class Controller extends GGen {
         } else if (state == State_Blind) {
             // TODO: make this something more permanent
             player._cam.rotX(-pi/6);
-            if (GWindow.keyDown(GWindow.Key_Space)) {
+            if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 player.toggleBlind();
                 level.reset(player);
                 silenceOrbs();
                 State_Placing => state;
             }
         } else if (state == State_BlindFall) {
-            if (GWindow.keyDown(GWindow.Key_Space)) {
+            if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 level.reset(player);
                 silenceOrbs();
                 State_Placing => state;
@@ -120,27 +127,6 @@ public class Controller extends GGen {
         engine.setPos(player.pos());
         engine.setDir(player._cam.forward());
 
-        UI.setNextWindowSize(@(400, 120), 1);
-        if (UI.begin("info")) {
-            if (state == State_Placing) {
-                UI.text("Press the number keys to place sound orbs");
-                UI.text("Press R to respawn");
-                UI.text("Press space to play the level, blind!");
-                UI.text("(don't worry, this text box is temporary)");
-                UI.text("(I swear I'll remove it by the final)");
-            } else if (state == State_Blind) {
-                UI.text("Try and navigate to the finish using your ears!");
-            } else if (state == State_BlindFall) {
-                UI.text("Uh oh, you fell! Press space to go back to placing orbs.");
-            } else if (state == State_Win) {
-                UI.text("Good job, you beat the level!");
-                UI.text("Press space to go to the next one!");
-            } else {
-                UI.text("awkward, I forgot to add UI text to this state");
-            }
-        }
-        UI.end();
-
         return 0;
     }
 
@@ -148,6 +134,7 @@ public class Controller extends GGen {
         for (int i; i < MAX_ORBS; i++) {
             if (orbs[i].isPlaying) {
                 0 => orbs[i].isPlaying;
+                hud.setOrb(i, 0);
             }
         }
     }
@@ -161,6 +148,7 @@ public class Controller extends GGen {
             } else if (orbs[i].isPlaying) {
                 0 => orbs[i].isPlaying;
             }
+            hud.setOrb(i, 0);
         }
     }
 }

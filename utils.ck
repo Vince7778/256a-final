@@ -57,4 +57,13 @@ public class Utils {
         if (v.w < w.y || v.y > w.w) return 0;
         return 1;
     }
+
+    fun static vec2 getScreenSize() {
+        // recalculate aspect
+        (GG.frameWidth() * 1.0) / (GG.frameHeight() * 1.0) => float aspect;
+        // calculate ratio between old and new height/width
+        GG.hud().camera().viewSize() => float frustrumHeight;  // height of screen in world-space units
+        frustrumHeight * aspect => float frustrumWidth;  // width of the screen in world-space units
+        return @(frustrumWidth, frustrumHeight);
+    }
 }
