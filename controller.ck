@@ -21,7 +21,6 @@ public class Controller extends GGen {
     
     null @=> SpatializerEngine @ engine;
     SoundOrb orbs[MAX_ORBS];
-    -1 => int playingOrb;
 
     fun Controller(GScene scene, string levelPath, SpatializerEngine @ _engine) {
         _engine @=> engine;
@@ -40,38 +39,34 @@ public class Controller extends GGen {
     // returns 1 if should move on to the next level
     fun int frame() {
         if (state == State_Placing) {
-            for (int i; i < MAX_ORBS; i++) {
+            for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {
-                    i => playingOrb;
-                    orbs[i].setPos(@(
-                        player.posX(),
-                        player.posY() + Player.EYE_HEIGHT / 2.0,
-                        player.posZ()
-                    ));
                     if (!orbs[i].isPlaced) {
+                        orbs[i].setPos(@(
+                            player.posX(),
+                            player.posY() + Player.EYE_HEIGHT / 2.0,
+                            player.posZ()
+                        ));
                         1 => orbs[i].isPlaced;
+                        1 => orbs[i].isPlaying;
                         orbs[i] --> this;
+                    } else {
+                        0 => orbs[i].isPlaced;
+                        0 => orbs[i].isPlaying;
+                        orbs[i] --< this;
                     }
                 }
             }
         } else {
-            for (int i; i < MAX_ORBS; i++) {
+            for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {
-                    if (playingOrb == i) {
-                        -1 => playingOrb;
-                    } else {
-                        i => playingOrb;
-                    }
+                    !orbs[i].isPlaying => orbs[i].isPlaying;
                 }
             }
         }
 
-        if (playingOrb != -1) {
-            orbs[playingOrb].play();
-        }
-
-        for (int i; i < MAX_ORBS; i++) {
-            if (GWindow.key(ORB_KEYS[i])) {
+        for (int i; i < level.maxOrbs; i++) {
+            if (orbs[i].isPlaying) {
                 orbs[i].play();
             }
         }
@@ -98,7 +93,7 @@ public class Controller extends GGen {
             } else if (GWindow.keyDown(GWindow.Key_Space)) {
                 player.toggleBlind();
                 level.reset(player);
-                -1 => playingOrb;
+                silenceOrbs();
                 State_Blind => state;
             }
         } else if (state == State_Blind) {
@@ -107,13 +102,13 @@ public class Controller extends GGen {
             if (GWindow.keyDown(GWindow.Key_Space)) {
                 player.toggleBlind();
                 level.reset(player);
-                -1 => playingOrb;
+                silenceOrbs();
                 State_Placing => state;
             }
         } else if (state == State_BlindFall) {
             if (GWindow.keyDown(GWindow.Key_Space)) {
                 level.reset(player);
-                -1 => playingOrb;
+                silenceOrbs();
                 State_Placing => state;
             }
         } else if (state == State_Win) {
@@ -125,13 +120,14 @@ public class Controller extends GGen {
         engine.setPos(player.pos());
         engine.setDir(player._cam.forward());
 
-        UI.setNextWindowSize(@(400, 100), 1);
+        UI.setNextWindowSize(@(400, 120), 1);
         if (UI.begin("info")) {
             if (state == State_Placing) {
-                UI.text("Press 1, 2, 3 to place sound orbs");
+                UI.text("Press the number keys to place sound orbs");
                 UI.text("Press R to respawn");
                 UI.text("Press space to play the level, blind!");
                 UI.text("(don't worry, this text box is temporary)");
+                UI.text("(I swear I'll remove it by the final)");
             } else if (state == State_Blind) {
                 UI.text("Try and navigate to the finish using your ears!");
             } else if (state == State_BlindFall) {
@@ -148,11 +144,22 @@ public class Controller extends GGen {
         return 0;
     }
 
+    fun void silenceOrbs() {
+        for (int i; i < MAX_ORBS; i++) {
+            if (orbs[i].isPlaying) {
+                0 => orbs[i].isPlaying;
+            }
+        }
+    }
+
     fun void clearOrbs() {
         for (int i; i < MAX_ORBS; i++) {
             if (orbs[i].isPlaced) {
                 orbs[i] --< this;
                 0 => orbs[i].isPlaced;
+                0 => orbs[i].isPlaying;
+            } else if (orbs[i].isPlaying) {
+                0 => orbs[i].isPlaying;
             }
         }
     }

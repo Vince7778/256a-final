@@ -10,6 +10,7 @@ public class SoundOrb extends GGen {
     _ball.sca(@(1, 1, 1) * DIAMETER);
 
     0 => int isPlaced;
+    0 => int isPlaying;
     now => time _lastPlay;
     null @=> Chime @ _chime;
     null @=> Source @ _source;
