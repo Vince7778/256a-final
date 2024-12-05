@@ -66,4 +66,10 @@ public class Utils {
         frustrumHeight * aspect => float frustrumWidth;  // width of the screen in world-space units
         return @(frustrumWidth, frustrumHeight);
     }
+
+    fun static float sampleNormal() {
+        1 - Math.randomf() => float u;
+        Math.randomf() => float v;
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
 }

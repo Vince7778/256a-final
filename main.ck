@@ -9,7 +9,6 @@ GG.nextFrame() => now;
 
 GG.scene().light().rotY(pi/5);
 
-// BasicPlatform testPlat(@(1, 2, 3, 3)) --> GG.scene();
 [
     "levels/button.level",
     "levels/maze.level",
@@ -22,6 +21,21 @@ GG.scene().light().rotY(pi/5);
 SpatializerEngine engine => dac;
 Controller controller(GG.scene(), GG.hud(), levels[curLevel], engine);
 
+500 => int STAR_COUNT;
+GPoints backgroundStars --> GG.scene();
+vec3 starPos[0];
+for (int i; i < STAR_COUNT; i++) {
+    @(
+        Utils.sampleNormal(),
+        Utils.sampleNormal(),
+        Utils.sampleNormal()
+    ) => vec3 dir;
+    dir.normalize();
+    starPos << dir * 100;
+}
+backgroundStars.positions(starPos);
+backgroundStars.size(0.1);
+
 while (true) {
     GG.nextFrame() => now;
     if (controller.frame()) {
@@ -31,4 +45,6 @@ while (true) {
         controller --< GG.scene();
         new Controller(GG.scene(), GG.hud(), levels[curLevel], engine) @=> controller;
     }
+    // janky hack!
+    backgroundStars.pos(controller.player.pos());
 }
