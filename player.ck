@@ -121,4 +121,10 @@ public class Player extends GGen {
         }
         !isBlind => isBlind;
     }
+
+    fun vec3 getOrbPos() {
+        pos() + _cam.forward()*0.7 => vec3 res;
+        EYE_HEIGHT/2 => res.y;
+        return res;
+    }
 }

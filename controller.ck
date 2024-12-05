@@ -50,11 +50,7 @@ public class Controller extends GGen {
             for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {
                     if (!orbs[i].isPlaced) {
-                        orbs[i].setPos(@(
-                            player.posX(),
-                            player.posY() + Player.EYE_HEIGHT / 2.0,
-                            player.posZ()
-                        ));
+                        orbs[i].setPos(player.getOrbPos());
                         1 => orbs[i].isPlaced;
                         1 => orbs[i].isPlaying;
                         hud.setOrb(i, 1);
