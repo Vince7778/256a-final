@@ -21,7 +21,7 @@ GG.scene().light().rotY(pi/5);
 SpatializerEngine engine => dac;
 Controller controller(GG.scene(), GG.hud(), levels[curLevel], engine);
 
-500 => int STAR_COUNT;
+200 => int STAR_COUNT;
 GPoints backgroundStars --> GG.scene();
 vec3 starPos[0];
 for (int i; i < STAR_COUNT; i++) {
@@ -34,7 +34,7 @@ for (int i; i < STAR_COUNT; i++) {
     starPos << dir * 100;
 }
 backgroundStars.positions(starPos);
-backgroundStars.size(0.1);
+backgroundStars.size(0.15);
 
 while (true) {
     GG.nextFrame() => now;
