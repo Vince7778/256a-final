@@ -171,7 +171,7 @@ public class SpatializerEngine extends UGen_Stereo {
 
     fun _interp() {
         while (true) {
-            1::samp => now;
+            10::samp => now;
             for (Source @ s : _sources) {
                 s.interpGains();
             }

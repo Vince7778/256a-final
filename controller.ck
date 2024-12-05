@@ -26,7 +26,7 @@ public class Controller extends GGen {
     fun Controller(GScene scene, string levelPath, SpatializerEngine @ _engine) {
         _engine @=> engine;
         this --> scene;
-        LevelReader.read(levelPath, bump) @=> level;
+        LevelReader.read(levelPath, bump, _engine) @=> level;
         level --> this;
         player --> this;
         player.setSceneCam(scene);

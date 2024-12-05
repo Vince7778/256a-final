@@ -28,7 +28,11 @@ public class GateWall extends Wall {
     Bump @ _bump;
     GateReceiver receiver(this);
 
-    fun GateWall(string name, vec4 bounds, vec3 color, Signal @ sig, Bump @ bump) {
+    null @=> Source @ gateSource;
+    SndBuf gateSound("audio/sounds/gate_wind.wav");
+    gateSound.gain(2.0);
+
+    fun GateWall(string name, vec4 bounds, vec3 color, Signal @ sig, Bump @ bump, SpatializerEngine @ spat) {
         Utils.fixBounds(bounds) => bounds;
         Utils.jut(bounds, THICKNESS) => bounds;
         new BRect(bounds) @=> _hitbox;
@@ -49,11 +53,20 @@ public class GateWall extends Wall {
 
         addToBump(_bump);
         sig.addReceiver(receiver);
+        
+        gateSound.pos(gateSound.samples());
+        spat.register(gateSound) @=> gateSource;
+        @(
+            _cube.posX(),
+            0,
+            _cube.posZ()
+        ) => gateSource.pos;
     }
 
     fun retract() {
         if (retractState != STATE_UP) return;
         STATE_RETRACTING => retractState;
+        gateSound.pos(0);
         for (int i; i < RETRACT_FRAMES; i++) {
             GG.nextFrame() => now;
             // cancel retracting if reset
@@ -69,6 +82,7 @@ public class GateWall extends Wall {
             _cube.posY(-HEIGHT / 2.0 + WALL_STEP);
             if (retractState == STATE_RETRACTED) addToBump(_bump);
             STATE_UP => retractState;
+            gateSound.pos(gateSound.samples());
         }
     }
 }

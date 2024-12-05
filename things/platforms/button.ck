@@ -1,4 +1,4 @@
-@import { "../../signal.ck", "base.ck", "../../player.ck" }
+@import { "../../signal.ck", "base.ck", "../../player.ck", "../../audio/spatializer.ck" }
 
 public class Button extends Platform {
     2.0 => static float HEIGHT;
@@ -11,7 +11,10 @@ public class Button extends Platform {
 
     Sender sender;
 
-    fun Button(float inPriority, vec4 bounds, vec3 color, Signal @ sig) {
+    null @=> Source @ clickSource;
+    SndBuf clickSound("audio/sounds/click.wav");
+
+    fun Button(float inPriority, vec4 bounds, vec3 color, Signal @ sig, SpatializerEngine @ engine) {
         inPriority => priority;
         Utils.fixBounds(bounds) => bounds;
         bounds => _hitbox;
@@ -29,11 +32,20 @@ public class Button extends Platform {
         _cube.color(color);
 
         sig.addSender(sender);
+
+        clickSound.pos(clickSound.samples());
+        engine.register(clickSound) @=> clickSource;
+        @(
+            _cube.posX(),
+            0,
+            _cube.posZ()
+        ) => clickSource.pos;
     }
 
     fun void activate() {
         _cube.posY(-HEIGHT/2.0);
         sender.setActive(true);
+        clickSound.pos(0);
     }
 
     fun int interact(Player @ p) {

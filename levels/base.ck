@@ -10,6 +10,7 @@
 public class Level extends GGen {
     float _startRot;
     vec2 _spawn;
+    5 => int maxOrbs;
 
     Platform _plats[0];
     Wall _walls[0];
