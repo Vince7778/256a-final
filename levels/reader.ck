@@ -148,6 +148,8 @@ public class LevelReader {
                 l.addSignal(readSignal(tok));
             } else if (lineType == "button") {
                 l.addPlatform(readButton(l, tok, spat));
+            } else if (lineType == "orbs") {
+                tok.next().toInt() => l.maxOrbs;
             } else {
                 <<< "Error: Unrecognized line type in level", filepath, ":", lineType >>>;
             }

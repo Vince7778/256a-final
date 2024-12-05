@@ -1,5 +1,7 @@
 
 spawn 0 0 0
+orbs 0
+
 p basic 0 -3 -6 5 3
 
 // basic walls
@@ -27,5 +29,3 @@ w gate 2 3 2 2 0 0 255 blue
 // end platform
 p basic 0 -0.3 3 -0.4 6
 p finish 2 -0.5 6 0.5 7
-
-

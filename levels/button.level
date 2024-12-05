@@ -1,5 +1,7 @@
 // level with a button that lowers a wall
 spawn 0 0 180
+orbs 3
+
 p basic 0 -2 -2 2 2
 | nwe
 p basic 0 -2 2 2 6
