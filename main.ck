@@ -1,4 +1,4 @@
-@import { "things/platforms/basic.ck", "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck" }
+@import { "levels/base.ck", "levels/reader.ck", "player.ck", "controller.ck", "audio/spatializer.ck" }
 
 // GWindow.fullscreen();
 GWindow.mouseMode(GWindow.MouseMode_Disabled);
@@ -13,7 +13,8 @@ GG.scene().light().rotY(pi/5);
 ["levels/2-button.level", "levels/1-basic.level"] @=> string levels[];
 0 => int curLevel;
 
-Controller controller(GG.scene(), levels[curLevel]);
+SpatializerEngine engine => dac;
+Controller controller(GG.scene(), levels[curLevel], engine);
 
 while (true) {
     GG.nextFrame() => now;
@@ -22,6 +23,6 @@ while (true) {
         levels.size() %=> curLevel;
         controller.clearOrbs();
         controller --< GG.scene();
-        new Controller(GG.scene(), levels[curLevel]) @=> controller;
+        new Controller(GG.scene(), levels[curLevel], engine) @=> controller;
     }
 }

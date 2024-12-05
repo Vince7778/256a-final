@@ -63,6 +63,15 @@ public class Source extends UGen_Stereo {
         b => this.right;
     }
 
+    fun interpGains() {
+        for (int ch; ch < 2; ch++) {
+            (now - startTime[ch]) / cfg.smoothTime => float prog;
+            Std.clampf(prog, 0, 1) => prog;
+            startGain[ch] + prog * (endGain[ch] - startGain[ch]) => float interpGain;
+            interpGain => this.chan(ch).gain;
+        }
+    }
+
     fun updateGains(float newGain[]) {
         for (int ch; ch < 2; ch++) {
             if (newGain[ch] != endGain[ch]) {
@@ -70,17 +79,14 @@ public class Source extends UGen_Stereo {
                 newGain[ch] => endGain[ch];
                 now => startTime[ch];
             }
-            (now - startTime[ch]) / cfg.smoothTime => float prog;
-            Std.clampf(prog, 0, 1) => prog;
-            startGain[ch] + prog * (endGain[ch] - startGain[ch]) => float interpGain;
-            interpGain => this.chan(ch).gain;
         }
+        interpGains();
     }
 }
 
 class Listener {
-    vec3 pos;
-    vec3 dir;
+    @(0, 0, 0) => vec3 pos;
+    @(0, 0, -1) => vec3 dir;
 
     // some listener defaults better for first person
     SpatializerConfig cfg;
@@ -154,6 +160,7 @@ public class SpatializerEngine extends UGen_Stereo {
     Source _sources[0];
     Listener list;
 
+    spork ~ _interp();
     spork ~ _update();
 
     fun Source register(UGen b) {
@@ -162,9 +169,18 @@ public class SpatializerEngine extends UGen_Stereo {
         return src;
     }
 
-    fun _update() {
+    fun _interp() {
         while (true) {
             1::samp => now;
+            for (Source @ s : _sources) {
+                s.interpGains();
+            }
+        }
+    }
+
+    fun _update() {
+        while (true) {
+            10::ms => now;
             for (Source @ s : _sources) {
                 list.process(s);
             }

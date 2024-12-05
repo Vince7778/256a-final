@@ -1,41 +1,33 @@
-@import "player.ck"
+@import { "audio/spatializer.ck", "audio/chime.ck" }
 
 // Orb that emits sound when you place it in the world!
 public class SoundOrb extends GGen {
+    [1.0/3, 0.0, 1.0/6, 2.0/3, 5.0/6] @=> static float ORB_HUES[];
     0.2 => static float DIAMETER;
-    5::ms => static dur RAMP_TIME;
+    0.5::second => static dur PLAY_DELAY;
 
-    null @=> Osc osc;
-    Envelope env(RAMP_TIME) => Pan2 pan;
+    GSphere _ball --> this;
+    _ball.sca(@(1, 1, 1) * DIAMETER);
 
-    GSphere ball --> this;
-    ball.sca(@(1, 1, 1) * DIAMETER);
+    0 => int isPlaced;
+    now => time _lastPlay;
+    null @=> Chime @ _chime;
+    null @=> Source @ _source;
 
-    fun SoundOrb(Osc _osc, float hue, UGen audio) {
-        _osc @=> osc;
-        osc => env;
-        pan => audio;
-        env.keyOn();
-        ball.color(Color.hsv2rgb(@(hue*360, 1, 1)));
+    fun SoundOrb(int pitch, SpatializerEngine @ engine) {
+        new Chime(pitch) @=> _chime;
+        engine.register(_chime) @=> _source;
+        _ball.color(Color.hsv2rgb(@(ORB_HUES[pitch]*360, 1, 1)));
     }
 
-    fun unchuck(UGen audio) {
-        env.keyOff();
-        RAMP_TIME*2 => now;
-        osc =< env;
-        pan =< audio;
+    fun void play() {
+        if (now - _lastPlay < PLAY_DELAY) return;
+        now => _lastPlay;
+        _chime.play();
     }
 
-    fun spatialize(Player @ p) {
-        pos() - p.pos() => vec3 diffVec;
-        diffVec.magnitude() => float mag;
-        Std.clampf(3 / mag, 0, 1) => float newGain;
-        env.target(newGain);
-
-        0 => diffVec.y;
-        diffVec.normalize();
-        p.right() => vec3 rightVec;
-        diffVec.x * rightVec.x + diffVec.z * rightVec.z => float newPan;
-        Std.clampf(newPan, -0.9, 0.9) => pan.pan;
+    fun void setPos(vec3 p) {
+        p => _source.pos;
+        p => this.pos;
     }
 }
