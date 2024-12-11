@@ -18,4 +18,5 @@ public class Wall extends GGen {
     }
 
     fun void reset() {}
+    fun upd(time t) {}
 }

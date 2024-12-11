@@ -92,7 +92,9 @@ public class Controller extends GGen {
                 State_WinOpening => state;
             }
         }
-        level.update();
+
+        level.checkSignals();
+        level.upd(now);
 
         if (state == State_Placing) {
             if (GWindow.keyDown(GWindow.Key_R)) {

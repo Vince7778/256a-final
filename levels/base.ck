@@ -105,11 +105,20 @@ public class Level extends GGen {
         return null;
     }
 
-    fun update() {
+    fun checkSignals() {
         string signalNames[0];
         _signals.getKeys(signalNames);
         for (string name : signalNames) {
             _signals[name].check();
+        }
+    }
+
+    fun upd(time t) {
+        for (Platform @ plat : _plats) {
+            plat.upd(t);
+        }
+        for (Wall @ wall : _walls) {
+            wall.upd(t);
         }
     }
 }

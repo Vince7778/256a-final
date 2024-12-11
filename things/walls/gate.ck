@@ -8,24 +8,26 @@ class GateReceiver extends Receiver {
     }
 
     fun void activate() {
-        spork ~ linkedWall.retract();
+        now => linkedWall.retractTime;
+        linkedWall.gateSound.pos(0);
     }
 }
 
 public class GateWall extends Wall {
     3.0 => static float HEIGHT;
-    60 => static int RETRACT_FRAMES;
+    1::second => static dur RETRACT_DUR;
 
     0 => static int STATE_UP;
     1 => static int STATE_RETRACTING;
     2 => static int STATE_RETRACTED;
 
-    STATE_UP => int retractState;
+    now + 1::eon => time retractTime;
 
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.1);
 
     Bump @ _bump;
+    0 => int isInBump;
     GateReceiver receiver(this);
 
     null @=> Source @ gateSource;
@@ -52,6 +54,7 @@ public class GateWall extends Wall {
         _cube.color(color);
 
         addToBump(_bump);
+        1 => isInBump;
         sig.addReceiver(receiver);
         
         gateSound.pos(gateSound.samples());
@@ -63,26 +66,20 @@ public class GateWall extends Wall {
         ) => gateSource.pos;
     }
 
-    fun retract() {
-        if (retractState != STATE_UP) return;
-        STATE_RETRACTING => retractState;
-        gateSound.pos(0);
-        for (int i; i < RETRACT_FRAMES; i++) {
-            GG.nextFrame() => now;
-            // cancel retracting if reset
-            if (retractState != STATE_RETRACTING) return;
-            _cube.posY(-HEIGHT / 2.0 + WALL_STEP * (RETRACT_FRAMES - i - 1.0) / RETRACT_FRAMES + 0.0001);
+    fun upd(time t) {
+        Std.clampf((now - retractTime) / RETRACT_DUR, 0.0, 1.0) => float retractProgress;
+        _cube.posY(-HEIGHT/2.0 + WALL_STEP * (1.0 - retractProgress) + 0.0001);
+        if (retractProgress >= 1.0 && isInBump) {
+            removeFromBump(_bump);
+            0 => isInBump;
+        } else if (retractProgress <= 0.0 && !isInBump) {
+            addToBump(_bump);
+            1 => isInBump;
         }
-        STATE_RETRACTED => retractState;
-        removeFromBump(_bump);
     }
 
     fun reset() {
-        if (retractState != STATE_UP) {
-            _cube.posY(-HEIGHT / 2.0 + WALL_STEP);
-            if (retractState == STATE_RETRACTED) addToBump(_bump);
-            STATE_UP => retractState;
-            gateSound.pos(gateSound.samples());
-        }
+        now + 1::eon => retractTime;
+        upd(now);
     }
 }
