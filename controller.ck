@@ -7,9 +7,6 @@ public class Controller extends GGen {
     3 => static int State_BlindFall;
     4 => static int State_Win;
     5 => static int State_BlindClosing;
-    6 => static int State_BlindFallOpening;
-    7 => static int State_PlacingOpening;
-    8 => static int State_WinOpening;
 
     5 => static int MAX_ORBS;
     [ GWindow.Key_1, 
@@ -62,8 +59,7 @@ public class Controller extends GGen {
                     }
                 }
             }
-        } else if (state == State_Blind || state == State_Win || state == State_BlindFall ||
-                   state == State_BlindFallOpening || state == State_WinOpening) {
+        } else if (state == State_Blind || state == State_Win || state == State_BlindFall) {
             for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {
                     !orbs[i].isPlaying => orbs[i].isPlaying;
@@ -82,14 +78,15 @@ public class Controller extends GGen {
         if (plat == null) {
             true => player.isFalling;
             if (state == State_Blind) {
-                State_BlindFallOpening => state;
-                hud.toggleBlind();
+                player._cam.rotX(-pi/6);
+                State_BlindFall => state;
+                hud.blinker.open(500::ms);
             }
         } else {
             plat.interact(player) => int code;
             if (code == Platform.Inter_EndLevel && state == State_Blind) {
-                hud.toggleBlind();
-                State_WinOpening => state;
+                State_Win => state;
+                hud.blinker.open(500::ms);
             }
         }
 
@@ -100,20 +97,17 @@ public class Controller extends GGen {
             if (GWindow.keyDown(GWindow.Key_R)) {
                 level.reset(player);
             } else if (GWindow.keyDown(GWindow.Key_Space)) {
-                hud.toggleBlind();
                 level.reset(player);
                 silenceOrbs();
                 1 => player.shouldPreventInput;
                 State_BlindClosing => state;
+                hud.blinker.close(1::second);
             }
         } else if (state == State_Blind) {
-            // TODO: make this something more permanent
-            player._cam.rotX(-pi/6);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
-                hud.toggleBlind();
-                level.reset(player);
                 silenceOrbs();
-                State_PlacingOpening => state;
+                State_Placing => state;
+                hud.blinker.open(500::ms);
             }
         } else if (state == State_BlindFall) {
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
@@ -126,21 +120,9 @@ public class Controller extends GGen {
                 return 1;
             }
         } else if (state == State_BlindClosing) {
-            if (hud.eyeState == Hud.EyeState_Closed) {
+            if (hud.blinker.eyeState == Blinker.EyeState_Closed) {
                 0 => player.shouldPreventInput;
                 State_Blind => state;
-            }
-        } else if (state == State_BlindFallOpening) {
-            if (hud.eyeState == Hud.EyeState_Open) {
-                State_BlindFall => state;
-            }
-        } else if (state == State_PlacingOpening) {
-            if (hud.eyeState == Hud.EyeState_Open) {
-                State_Placing => state;
-            }
-        } else if (state == State_WinOpening) {
-            if (hud.eyeState == Hud.EyeState_Open) {
-                State_Win => state;
             }
         }
 
