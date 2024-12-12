@@ -52,6 +52,17 @@ public class Controller extends GGen {
         spork ~ startAnimation(scene);
     }
 
+    fun void fadeJingle(dur d) {
+        now => time startTime;
+        now + d => time endTime;
+        while (now < endTime) {
+            1::ms => now;
+            (now - startTime) / d => float ratio;
+            0.5 * (1 - ratio) => jingle.gain;
+        }
+        0 => jingle.gain;
+    }
+
     fun void startAnimation(GScene scene) {
         40 => float CAM_DIST;
         0.8 => float CAM_ANGLE;
@@ -79,17 +90,30 @@ public class Controller extends GGen {
         jingle.play();
 
         7*60 => int nframes;
+        0 => int skipping;
+        now + 1::eon => time skipTime;
         for (int i; i < nframes; i++) {
             GG.nextFrame() => now;
+            if (skipping && now >= skipTime) {
+                break;
+            }
+            if (!skipping && GWindow.keyDown(GWindow.Key_Space)) {
+                // skip cutscene
+                spork ~ fadeJingle(1::second);
+                hud.setTitleText("");
+                hud.blinker.close(500::ms);
+                now + 500::ms => skipTime;
+                1 => skipping;
+            }
             i * 1.0 / nframes => float circRatio;
             Math.cos(circRatio * 2*pi) * xDist => float camZ;
             Math.sin(circRatio * 2*pi) * xDist => float camX;
             levelCam.rotateOnWorldAxis(@(0, 1, 0), 1.0 / nframes * 2 * pi);
             levelCam.pos(@(camX, yDist, camZ));
-            if (i == 60) {
+            if (i == 60 && !skipping) {
                 hud.setTitleText(level.title);
             }
-            if (i == nframes-30) {
+            if (!skipping && i == nframes-30) {
                 hud.setTitleText("");
                 hud.blinker.close(500::ms);
             }
