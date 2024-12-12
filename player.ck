@@ -9,9 +9,13 @@ public class Player extends GGen {
     0.3 => static float WIDTH;
     1.2 => static float STEP_DISTANCE;
 
-    GCamera _cam --> this;
+    // for some reason camera needs to be grucked to scene
+    // otherwise lighting gets messed up
+    // so i make a new ggen which camera gets moved to each frame
+    GCamera _camReal --> GG.scene();
+    _camReal.fov(0.3*pi);
+    GGen _cam --> this;
     _cam.posY(EYE_HEIGHT);
-    _cam.fov(0.3*pi);
 
     0 => int shouldPreventInput;
 
@@ -37,7 +41,7 @@ public class Player extends GGen {
     }
 
     fun setSceneCam(GScene @ scene) {
-        scene.camera(_cam);
+        scene.camera(_camReal);
     }
 
     fun setPos(vec3 p) {
@@ -107,6 +111,9 @@ public class Player extends GGen {
             }
             stepPos => lastStep;
         }
+
+        _camReal.pos(_cam.posWorld());
+        _camReal.rot(rot() + _cam.rot());
     }
 
     fun vec4 getAABB() {

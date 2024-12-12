@@ -19,8 +19,8 @@ Texture.load(
 ) @=> Texture cubemap;
 GG.scene().envMap(cubemap);
 GG.scene().backgroundColor(Color.WHITE);
-// GG.scene().light().rotateX(-pi/5);
-GG.scene().light().rotateY(1.1);
+GG.scene().light().rotateY(0.8);
+GG.scene().light().rotateX(-pi/5);
 
 [
     "levels/basic.level",

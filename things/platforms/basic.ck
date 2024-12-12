@@ -6,6 +6,7 @@ public class BasicPlatform extends Platform {
 
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.1);
+    _cube.specular(@(0, 0, 0));
 
     fun BasicPlatform(float inPriority, vec4 bounds) {
         inPriority => priority;
