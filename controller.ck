@@ -7,6 +7,7 @@ public class Controller extends GGen {
     3 => static int State_BlindFall;
     4 => static int State_Win;
     5 => static int State_BlindClosing;
+    6 => static int State_Starting;
 
     5 => static int MAX_ORBS;
     [ GWindow.Key_1, 
@@ -15,7 +16,7 @@ public class Controller extends GGen {
       GWindow.Key_4,
       GWindow.Key_5 ] @=> static int ORB_KEYS[];
 
-    State_Placing => int state;
+    State_Starting => int state;
     Level level;
     Bump bump;
     null @=> Player @ player;
@@ -33,15 +34,62 @@ public class Controller extends GGen {
         hud.setOrbLimit(level.maxOrbs);
         new Player(bump) @=> player;
         player --> this;
-        player.setSceneCam(scene);
         level.spawn(player);
         for (int i; i < MAX_ORBS; i++) {
             new SoundOrb(i, engine) @=> orbs[i];
         }
+        spork ~ startAnimation(scene);
+    }
+
+    fun void startAnimation(GScene scene) {
+        40 => float CAM_DIST;
+        0.8 => float CAM_ANGLE;
+
+        GGen ctr --> this;
+        level.calcCenter() => ctr.pos;
+
+        // 4 seconds fly in a circle
+        GCamera levelCam --> ctr;
+        scene.camera(levelCam);
+        1 => player.shouldPreventInput;
+
+        Math.cos(CAM_ANGLE) * CAM_DIST => float xDist;
+        Math.sin(CAM_ANGLE) * CAM_DIST => float yDist;
+        levelCam.pos(@(0, yDist, xDist));
+        levelCam.rotateX(-CAM_ANGLE);
+
+        5*60 => int nframes;
+        for (int i; i < nframes; i++) {
+            GG.nextFrame() => now;
+            i * 1.0 / nframes => float circRatio;
+            Math.cos(circRatio * 2*pi) * xDist => float camZ;
+            Math.sin(circRatio * 2*pi) * xDist => float camX;
+            levelCam.rotateOnWorldAxis(@(0, 1, 0), 1.0 / nframes * 2 * pi);
+            levelCam.pos(@(camX, yDist, camZ));
+            if (i == nframes-30) {
+                hud.blinker.close(500::ms);
+            }
+        }
+
+        levelCam --< ctr;
+        ctr --< this;
+        player.setSceneCam(scene);
+        hud.blinker.open(500::ms);
+
+        while (hud.blinker.eyeState != Blinker.EyeState_Open) {
+            GG.nextFrame() => now;
+        }
+
+        hud.setOrbsShown(1);
+        State_Placing => state;
     }
 
     // returns 1 if should move on to the next level
     fun int frame() {
+        if (state == State_Starting) {
+            return 0;
+        }
+
         if (state == State_Placing) {
             for (int i; i < level.maxOrbs; i++) {
                 if (GWindow.keyDown(ORB_KEYS[i])) {

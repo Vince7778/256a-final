@@ -68,7 +68,7 @@ public class Level extends GGen {
     fun bake() {
         _sortPlatforms();
         for (int i; i < _plats.size(); i++) {
-            _plats[i].posY(_plats[i].priority * 0.0001);
+            _plats[i].posY(_plats[i].priority * 0.001);
         }
     }
 
@@ -120,5 +120,20 @@ public class Level extends GGen {
         for (Wall @ wall : _walls) {
             wall.upd(t);
         }
+    }
+
+    fun vec3 calcCenter() {
+        1e9 => float minX;
+        1e9 => float minZ;
+        -1e9 => float maxX;
+        -1e9 => float maxZ;
+        for (Platform @ plat : _plats) {
+            plat.getHitbox() => vec4 hb;
+            Math.min(hb.x, minX) => minX;
+            Math.min(hb.y, minZ) => minZ;
+            Math.max(hb.z, maxX) => maxX;
+            Math.max(hb.w, maxZ) => maxZ;
+        }
+        return @((maxX + minX) / 2.0, 0, (maxZ + minZ) / 2.0);
     }
 }

@@ -44,17 +44,34 @@ class HudOrbs extends GGen {
 public class Hud extends GGen {
     Utils.getScreenSize() => vec2 screenSize;
 
+    0 => int orbsShown;
     null @=> HudOrbs @ orbs;
     Blinker blinker --> this;
 
+    fun setOrbsShown(int s) {
+        if (!orbsShown && s) {
+            1 => orbsShown;
+            if (orbs != null) {
+                orbs --> this;
+            }
+        } else if (orbsShown && !s) {
+            0 => orbsShown;
+            if (orbs != null) {
+                orbs --< this;
+            }
+        }
+    }
+
     fun setOrbLimit(int limit) {
-        if (orbs != null) {
+        if (orbs != null && orbsShown) {
             orbs --< this;
         }
         new HudOrbs(limit) @=> orbs;
         orbs.posX(-screenSize.x/2);
         orbs.posY(screenSize.y/2);
-        orbs --> this;
+        if (orbsShown) {
+            orbs --> this;
+        }
     }
 
     fun setOrb(int i, int on) {
