@@ -48,6 +48,12 @@ public class Hud extends GGen {
     null @=> HudOrbs @ orbs;
     Blinker blinker --> this;
 
+    GText _titleText --> this;
+    _titleText.controlPoints(@(0.5, 1.0));
+    _titleText.posY(screenSize.y / 2 - 0.2);
+    _titleText.sca(@(1,1,1) * 0.3);
+    _titleText.text("");
+
     fun setOrbsShown(int s) {
         if (!orbsShown && s) {
             1 => orbsShown;
@@ -76,5 +82,9 @@ public class Hud extends GGen {
 
     fun setOrb(int i, int on) {
         orbs.set(i, on);
+    }
+
+    fun setTitleText(string txt) {
+        _titleText.text(txt);
     }
 }

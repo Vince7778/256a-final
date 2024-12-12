@@ -19,13 +19,14 @@ Texture.load(
 ) @=> Texture cubemap;
 GG.scene().envMap(cubemap);
 GG.scene().backgroundColor(Color.WHITE);
-GG.scene().light().rotY(pi/5);
+// GG.scene().light().rotateX(-pi/5);
+GG.scene().light().rotateY(1.1);
 
 [
+    "levels/basic.level",
     "levels/button.level",
     "levels/maze2.level",
     "levels/maze.level",
-    "levels/basic.level",
     "levels/test.level",
     "levels/debug.level"
 ] @=> string levels[];

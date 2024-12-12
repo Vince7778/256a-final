@@ -1,4 +1,4 @@
-@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck", "audio/spatializer.ck", "hud.ck" }
+@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck", "audio/spatializer.ck", "hud.ck", "audio/sample.ck" }
 
 // Game controller. Manages the player, level, and sound orbs.
 public class Controller extends GGen {
@@ -25,6 +25,17 @@ public class Controller extends GGen {
     SoundOrb orbs[MAX_ORBS];
 
     Hud hud;
+
+    SoundSample2 jingle("level_jingle") => dac;
+    0.5 => jingle.gain;
+
+    // wind noise
+    Noise noise => Envelope noiseEnv => LPF lpf => dac;
+    0.02 => noise.gain;
+    3::second => noiseEnv.duration;
+    500 => lpf.freq;
+    SinOsc noiseOsc => blackhole;
+    noiseOsc.freq(0.1);
 
     fun Controller(GScene scene, GScene hudScene, string levelPath) {
         this --> scene;
@@ -58,7 +69,16 @@ public class Controller extends GGen {
         levelCam.pos(@(0, yDist, xDist));
         levelCam.rotateX(-CAM_ANGLE);
 
-        5*60 => int nframes;
+        // wait a couple secs
+        1*60 => int waitframes;
+        for (int i; i < waitframes; i++) {
+            GG.nextFrame() => now;
+        }
+
+        hud.blinker.open(1::second);
+        jingle.play();
+
+        7*60 => int nframes;
         for (int i; i < nframes; i++) {
             GG.nextFrame() => now;
             i * 1.0 / nframes => float circRatio;
@@ -66,7 +86,11 @@ public class Controller extends GGen {
             Math.sin(circRatio * 2*pi) * xDist => float camX;
             levelCam.rotateOnWorldAxis(@(0, 1, 0), 1.0 / nframes * 2 * pi);
             levelCam.pos(@(camX, yDist, camZ));
+            if (i == 60) {
+                hud.setTitleText(level.title);
+            }
             if (i == nframes-30) {
+                hud.setTitleText("");
                 hud.blinker.close(500::ms);
             }
         }
@@ -82,6 +106,8 @@ public class Controller extends GGen {
 
         hud.setOrbsShown(1);
         State_Placing => state;
+        0 => player.shouldPreventInput;
+        noiseEnv.keyOn();
     }
 
     // returns 1 if should move on to the next level
@@ -89,6 +115,8 @@ public class Controller extends GGen {
         if (state == State_Starting) {
             return 0;
         }
+
+        (noiseOsc.last() + 2) * 0.01 => noise.gain;
 
         if (state == State_Placing) {
             for (int i; i < level.maxOrbs; i++) {

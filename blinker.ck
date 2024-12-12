@@ -8,7 +8,7 @@ public class Blinker extends GGen {
 
     Utils.getScreenSize() => vec2 screenSize;
 
-    EyeState_Open => int eyeState;
+    EyeState_Closed => int eyeState;
     screenSize.y/2 => float closeSpeed;
 
     FlatMaterial lidMat;
@@ -18,12 +18,12 @@ public class Blinker extends GGen {
     GMesh lid1(lidGeo, lidMat) --> this;
     lid1.scaX(screenSize.x);
     lid1.scaY(screenSize.y/2);
-    lid1.posY(screenSize.y*3/4);
+    lid1.posY(screenSize.y/4);
 
     GMesh lid2(lidGeo, lidMat) --> this;
     lid2.scaX(screenSize.x);
     lid2.scaY(screenSize.y/2);
-    lid2.posY(-screenSize.y*3/4);
+    lid2.posY(-screenSize.y/4);
 
     fun open(dur d) {
         if (eyeState != EyeState_Open) {
