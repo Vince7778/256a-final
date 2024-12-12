@@ -8,6 +8,17 @@ GG.nextFrame() => now;
 // GFlyCamera flyCam --> GG.scene();
 // GG.scene().camera(flyCam);
 
+// load the cubemap
+Texture.load(
+    me.dir() + "./graphics/skybox/posx.png", // right
+    me.dir() + "./graphics/skybox/negx.png", // left
+    me.dir() + "./graphics/skybox/posy.png", // top
+    me.dir() + "./graphics/skybox/negy.png", // bottom
+    me.dir() + "./graphics/skybox/posz.png", // back
+    me.dir() + "./graphics/skybox/negz.png"  // front
+) @=> Texture cubemap;
+GG.scene().envMap(cubemap);
+GG.scene().backgroundColor(Color.WHITE);
 GG.scene().light().rotY(pi/5);
 
 [
@@ -22,21 +33,6 @@ GG.scene().light().rotY(pi/5);
 
 Controller controller(GG.scene(), GG.hud(), levels[curLevel]);
 
-200 => int STAR_COUNT;
-GPoints backgroundStars --> GG.scene();
-vec3 starPos[0];
-for (int i; i < STAR_COUNT; i++) {
-    @(
-        Utils.sampleNormal(),
-        Utils.sampleNormal(),
-        Utils.sampleNormal()
-    ) => vec3 dir;
-    dir.normalize();
-    starPos << dir * 100;
-}
-backgroundStars.positions(starPos);
-backgroundStars.size(0.15);
-
 while (true) {
     GG.nextFrame() => now;
     if (controller.frame()) {
@@ -46,6 +42,4 @@ while (true) {
         controller --< GG.scene();
         new Controller(GG.scene(), GG.hud(), levels[curLevel]) @=> controller;
     }
-    // janky hack!
-    backgroundStars.pos(controller.player.pos());
 }
