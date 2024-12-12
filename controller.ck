@@ -29,6 +29,9 @@ public class Controller extends GGen {
     SoundSample2 jingle("level_jingle") => dac;
     0.5 => jingle.gain;
 
+    SoundSample2 end_jingle("level_finish") => dac;
+    0.5 => end_jingle.gain;
+
     // wind noise
     Noise noise => Envelope noiseEnv => LPF lpf => dac;
     0.02 => noise.gain;
@@ -178,7 +181,6 @@ public class Controller extends GGen {
         if (plat == null) {
             true => player.isFalling;
             if (state == State_Blind) {
-                player._cam.rotX(-pi/6);
                 State_BlindFall => state;
                 hud.blinker.open(500::ms);
             }
@@ -187,6 +189,7 @@ public class Controller extends GGen {
             if (code == Platform.Inter_EndLevel && state == State_Blind) {
                 State_Win => state;
                 hud.blinker.open(500::ms);
+                end_jingle.play();
             }
         }
 
@@ -204,6 +207,7 @@ public class Controller extends GGen {
                 hud.blinker.close(1::second);
             }
         } else if (state == State_Blind) {
+            player._cam.rotX(-pi/6);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 silenceOrbs();
                 State_Placing => state;

@@ -12,6 +12,7 @@ class HudOrbs extends GGen {
     zeroText.sca(@(1,1,1)*0.2);
 
     GCircle circles[0];
+    GText texts[0];
 
     fun HudOrbs(int limit) {
         if (limit == 0) {
@@ -25,6 +26,15 @@ class HudOrbs extends GGen {
                 circ.sca(@(1,1,1)*ORB_SIZE);
                 circ --> this;
                 circles << circ;
+
+                GText text;
+                text.posX(circ.posX());
+                text.posY(circ.posY());
+                text.posZ(0.001);
+                text.sca(@(1,1,1)*ORB_SIZE);
+                text.text(""+(i+1));
+                text --> this;
+                texts << text;
             }
         }
         
