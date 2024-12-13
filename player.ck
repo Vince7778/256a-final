@@ -18,6 +18,7 @@ public class Player extends GGen {
     _cam.posY(EYE_HEIGHT);
 
     0 => int shouldPreventInput;
+    0 => int shouldSkipUpdate;
 
     0 => int isFalling;
     @(0, 0, 0) => vec3 _vel;
@@ -57,7 +58,16 @@ public class Player extends GGen {
         rot(@(0, 0, 0));
     }
 
+    fun fixCamera() {
+        _camReal.pos(_cam.posWorld());
+        _camReal.rot(rot() + _cam.rot());
+    }
+
     fun update(float dt) {
+        if (shouldSkipUpdate) {
+            return;
+        }
+
         if (isFalling) {
             // i don't care enough to make this accurate
             GRAVITY * dt -=> _vel.y;
@@ -112,8 +122,7 @@ public class Player extends GGen {
             stepPos => lastStep;
         }
 
-        _camReal.pos(_cam.posWorld());
-        _camReal.rot(rot() + _cam.rot());
+        fixCamera();
     }
 
     fun vec4 getAABB() {

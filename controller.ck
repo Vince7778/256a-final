@@ -1,13 +1,25 @@
-@import { "player.ck", "levels/base.ck", "levels/reader.ck", "orb.ck", "bump.ck", "audio/spatializer.ck", "hud.ck", "audio/sample.ck" }
+@import { 
+    "player.ck", 
+    "levels/base.ck", 
+    "levels/reader.ck", 
+    "orb.ck", 
+    "bump.ck", 
+    "audio/spatializer.ck", 
+    "hud.ck", 
+    "audio/sample.ck",
+    "replay.ck"
+}
 
 // Game controller. Manages the player, level, and sound orbs.
 public class Controller extends GGen {
+    0 => static int State_None;
     1 => static int State_Placing;
     2 => static int State_Blind;
     3 => static int State_BlindFall;
     4 => static int State_Win;
     5 => static int State_BlindClosing;
     6 => static int State_Starting;
+    7 => static int State_Replaying;
 
     5 => static int MAX_ORBS;
     [ GWindow.Key_1, 
@@ -17,6 +29,7 @@ public class Controller extends GGen {
       GWindow.Key_5 ] @=> static int ORB_KEYS[];
 
     State_Starting => int state;
+    State_None => int savedState;
     Level level;
     Bump bump;
     null @=> Player @ player;
@@ -39,6 +52,8 @@ public class Controller extends GGen {
     500 => lpf.freq;
     SinOsc noiseOsc => blackhole;
     noiseOsc.freq(0.1);
+
+    Replay replay;
 
     fun Controller(GScene scene, GScene hudScene, string levelPath) {
         this --> scene;
@@ -137,10 +152,43 @@ public class Controller extends GGen {
         noiseEnv.keyOn();
     }
 
+    fun void startReplay() {
+        if (replay.empty()) {
+            return;
+        }
+        <<< "Starting replay!" >>>;
+        state => savedState;
+        State_Replaying => state;
+        1 => player.shouldSkipUpdate;
+        replay.start();
+        hud.setTitleText("--- Replay ---");
+        hud.setOrbsShown(false);
+        silenceOrbs();
+    }
+
+    fun void endReplay() {
+        level.reset(player);
+        hud.setTitleText("");
+        if (savedState == State_BlindFall) {
+            State_Placing => state;
+        } else {
+            if (savedState == State_Win) {
+                hud.setTitleText("You win!\nPress space for next level\nPress V to view replay");
+            }
+            savedState => state;
+        }
+        State_None => savedState;
+        0 => player.shouldSkipUpdate;
+        hud.setOrbsShown(true);
+    }
+
     // returns 1 if should move on to the next level
     fun int frame() {
         if (state == State_Starting) {
             return 0;
+        }
+        if (state == State_None) {
+            hud.setTitleText("Somehow got into null state\nThis is a bug!");
         }
 
         (noiseOsc.last() + 2) * 0.01 => noise.gain;
@@ -183,6 +231,7 @@ public class Controller extends GGen {
             if (state == State_Blind) {
                 State_BlindFall => state;
                 hud.blinker.open(500::ms);
+                hud.setTitleText("You fell!\nPress space to place orbs\nPress V to view replay");
             }
         } else {
             plat.interact(player) => int code;
@@ -190,11 +239,14 @@ public class Controller extends GGen {
                 State_Win => state;
                 hud.blinker.open(500::ms);
                 end_jingle.play();
+                hud.setTitleText("You win!\nPress space for next level\nPress V to view replay");
             }
         }
 
-        level.checkSignals();
-        level.upd(now);
+        if (state != State_Replaying) {
+            level.checkSignals();
+            level.upd(now);
+        }
 
         if (state == State_Placing) {
             if (GWindow.keyDown(GWindow.Key_R)) {
@@ -207,26 +259,37 @@ public class Controller extends GGen {
                 hud.blinker.close(1::second);
             }
         } else if (state == State_Blind) {
-            player._cam.rotX(-pi/6);
+            player._cam.rotX(-0.2);
+            replay.addFrame(player);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 silenceOrbs();
                 State_Placing => state;
                 hud.blinker.open(500::ms);
             }
         } else if (state == State_BlindFall) {
+            replay.addFrame(player);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 level.reset(player);
                 silenceOrbs();
                 State_Placing => state;
+            } else if (GWindow.keyDown(GWindow.Key_V)) {
+                startReplay();
             }
         } else if (state == State_Win) {
             if (GWindow.keyDown(GWindow.Key_Space)) {
                 return 1;
+            } else if (GWindow.keyDown(GWindow.Key_V)) {
+                startReplay();
             }
         } else if (state == State_BlindClosing) {
             if (hud.blinker.eyeState == Blinker.EyeState_Closed) {
                 0 => player.shouldPreventInput;
                 State_Blind => state;
+                replay.clear();
+            }
+        } else if (state == State_Replaying) {
+            if (replay.nextFrame(player, level) || GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_V)) {
+                endReplay();
             }
         }
 

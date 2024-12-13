@@ -67,7 +67,7 @@ public class GateWall extends Wall {
     }
 
     fun upd(time t) {
-        Std.clampf((now - retractTime) / RETRACT_DUR, 0.0, 1.0) => float retractProgress;
+        Std.clampf((t - retractTime) / RETRACT_DUR, 0.0, 1.0) => float retractProgress;
         _cube.posY(-HEIGHT/2.0 + WALL_STEP * (1.0 - retractProgress) + 0.0001);
         if (retractProgress >= 1.0 && isInBump) {
             removeFromBump(_bump);

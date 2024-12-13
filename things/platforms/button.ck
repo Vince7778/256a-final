@@ -5,6 +5,7 @@ public class Button extends Platform {
     0.1 => static float UNPRESSED_STEP;
 
     0 => int _pressed;
+    now + 1::eon => time _pressTime;
 
     GCube _cube --> this;
     _cube.color(@(1, 1, 1) * 0.1);
@@ -42,10 +43,18 @@ public class Button extends Platform {
         ) => clickSource.pos;
     }
 
+    fun void upd(time t) {
+        if (t >= _pressTime) {
+            _cube.posY(-HEIGHT/2.0);
+        } else {
+            _cube.posY(-HEIGHT / 2.0 + UNPRESSED_STEP);
+        }
+    }
+
     fun void activate() {
-        _cube.posY(-HEIGHT/2.0);
         sender.setActive(true);
         clickSound.pos(0);
+        now => _pressTime;
     }
 
     fun int interact(Player @ p) {
