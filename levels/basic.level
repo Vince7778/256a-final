@@ -6,6 +6,7 @@ title Level 2: Around the Corner
 message Press R to respawn if you fall off while not blind
 
 spawn 0 0
+spin
 orbs 2
 
 p basic 0 -2 -2 2 2

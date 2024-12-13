@@ -23,14 +23,16 @@ GG.scene().light().rotateY(0.8);
 GG.scene().light().rotateX(-pi/5);
 
 [
-    "levels/bus.level",
-    "levels/moving.level",
     "levels/intro.level",
     "levels/basic.level",
     "levels/button.level",
-    "levels/test.level",
+    "levels/moving.level",
     "levels/maze2.level",
-    "levels/maze.level",
+    "levels/bus.level",
+    // "levels/test.level",
+    // "levels/maze.level",
+    // "levels/lots.level",
+    // "levels/weird.level",
     "levels/debug.level"
 ] @=> string levels[];
 0 => int curLevel;

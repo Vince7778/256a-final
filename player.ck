@@ -20,7 +20,6 @@ public class Player extends Entity {
     0 => int shouldPreventInput;
     0 => int shouldSkipUpdate;
 
-    0 => int isFalling;
     @(0, 0, 0) => vec3 _vel;
 
     0 => int isBlind;

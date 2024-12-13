@@ -1,5 +1,7 @@
 
 public class Entity extends GGen {
+    0 => int isFalling;
+
     fun vec3 getPos() {
         return pos();
     }

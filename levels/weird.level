@@ -1,0 +1,6 @@
+title Level ???
+
+spawn 0 0
+p basic 0 -1 -1 1 1
+p moving 1 2 2 0 -2 50 -48 0.2 5
+p finish 2 49 -49 51 -51

@@ -1,5 +1,5 @@
 title Level 1: Intro
-spawn 0 0
+spawn 3 3 45
 orbs 5
 spin
 message Press number keys to place sound orbs
@@ -8,4 +8,4 @@ message try and navigate to the finish (green)
 
 p basic 0 -5 -5 5 5
 | nesw
-p finish 2 -3 -4 -3.5 -3.5
+p finish 2 -4 -4 -3 -3

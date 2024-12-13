@@ -61,9 +61,11 @@ public class MovingPlatform extends Platform {
     }
 
     fun int interact(Entity @ e, time t) {
-        getCyclePos(t) - getCyclePos(_lastUpdate) => vec2 dpos;
-        e.getPos() => vec3 oldPos;
-        e.setPos(@(oldPos.x + dpos.x, oldPos.y, oldPos.z + dpos.y));
+        if (!e.isFalling) {
+            getCyclePos(t) - getCyclePos(_lastUpdate) => vec2 dpos;
+            e.getPos() => vec3 oldPos;
+            e.setPos(@(oldPos.x + dpos.x, oldPos.y, oldPos.z + dpos.y));
+        }
         return Platform.Inter_Floor;
     }
 }
