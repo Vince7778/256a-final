@@ -1,0 +1,11 @@
+title Level 1: Intro
+spawn 0 0
+orbs 5
+spin
+message Press number keys to place sound orbs
+message Press space to go blind, then
+message try and navigate to the finish (green)
+
+p basic 0 -5 -5 5 5
+| nesw
+p finish 2 -3 -4 -3.5 -3.5

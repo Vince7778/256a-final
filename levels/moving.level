@@ -1,0 +1,12 @@
+title Level 4: Locomotion
+message Moving platforms move you around
+message as well as any orbs on them
+
+spawn 0 0 0
+orbs 2
+
+p basic 0 -1 -1 1 1
+| esw
+p moving 1 1 1 0 -1.5 0 -7.5 2 2
+p finish 2 -1 -8 1 -10
+| wne

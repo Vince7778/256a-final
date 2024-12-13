@@ -63,6 +63,13 @@ public class Hud extends GGen {
     _titleText.sca(@(1,1,1) * 0.3);
     _titleText.text("");
 
+    GText _messageText --> this;
+    _messageText.controlPoints(@(0.0, 1.0));
+    _messageText.posX(-screenSize.x / 2 + HudOrbs.ORB_SPACING);
+    _messageText.posY(screenSize.y / 2 - HudOrbs.ORB_SIZE - HudOrbs.ORB_SPACING * 2);
+    _messageText.sca(@(1,1,1) * 0.2);
+    _messageText.text("");
+
     fun setOrbsShown(int s) {
         if (!orbsShown && s) {
             1 => orbsShown;
@@ -95,5 +102,9 @@ public class Hud extends GGen {
 
     fun setTitleText(string txt) {
         _titleText.text(txt);
+    }
+
+    fun setMessageText(string txt) {
+        _messageText.text(txt);
     }
 }

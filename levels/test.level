@@ -10,6 +10,9 @@ title Test Level
 // The optional third argument represents the starting rotation in degrees.
 spawn 0 0 30
 
+// This makes the player spin while closing their eyes, so that their direction is randomized.
+spin
+
 // This section creates the platforms of the level.
 // All platforms have a priority, which is kinda like y-level
 // except prevents z-fighting and determines collision check order.

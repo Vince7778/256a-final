@@ -23,10 +23,12 @@ GG.scene().light().rotateY(0.8);
 GG.scene().light().rotateX(-pi/5);
 
 [
+    "levels/moving.level",
+    "levels/intro.level",
+    "levels/basic.level",
+    "levels/button.level",
     "levels/test.level",
     "levels/maze2.level",
-    "levels/button.level",
-    "levels/basic.level",
     "levels/maze.level",
     "levels/debug.level"
 ] @=> string levels[];
@@ -36,7 +38,7 @@ Controller controller(GG.scene(), GG.hud(), levels[curLevel]);
 
 while (true) {
     GG.nextFrame() => now;
-    if (controller.frame()) {
+    if (controller.frame() || GWindow.keyDown(GWindow.Key_Backslash)) {
         1 +=> curLevel;
         levels.size() %=> curLevel;
         controller.cleanup();

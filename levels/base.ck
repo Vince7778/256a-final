@@ -12,6 +12,8 @@ public class Level extends GGen {
     vec2 _spawn;
     5 => int maxOrbs;
     string title;
+    false => int spin;
+    "" => string message;
 
     Platform _plats[0];
     Wall _walls[0];
@@ -34,6 +36,15 @@ public class Level extends GGen {
     fun addWall(Wall @ wall) {
         wall --> this;
         _walls << wall;
+    }
+
+    // adds one line to the level's message
+    fun addMessage(string msg) {
+        if (message != "") {
+            message + "\n" + msg => message;
+        } else {
+            msg => message;
+        }
     }
 
     fun addSignal(Signal @ signal) {

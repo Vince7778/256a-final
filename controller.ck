@@ -111,6 +111,7 @@ public class Controller extends GGen {
         now + 1::eon => time skipTime;
         for (int i; i < nframes; i++) {
             GG.nextFrame() => now;
+            level.upd(now);
             if (skipping && now >= skipTime) {
                 break;
             }
@@ -143,6 +144,7 @@ public class Controller extends GGen {
 
         while (hud.blinker.eyeState != Blinker.EyeState_Open) {
             GG.nextFrame() => now;
+            level.upd(now);
         }
 
         hud.setOrbsShown(1);
@@ -162,6 +164,7 @@ public class Controller extends GGen {
         replay.start();
         hud.setTitleText("--- Replay ---");
         hud.setOrbsShown(false);
+        hud.setMessageText("");
         silenceOrbs();
     }
 
@@ -172,7 +175,7 @@ public class Controller extends GGen {
             State_Placing => state;
         } else {
             if (savedState == State_Win) {
-                hud.setTitleText("You win!\nPress space for next level\nPress V to view replay");
+                hud.setMessageText("You win!\nPress space for next level\nPress V to view replay");
             }
             savedState => state;
         }
@@ -188,6 +191,7 @@ public class Controller extends GGen {
         }
         if (state == State_None) {
             hud.setTitleText("Somehow got into null state\nThis is a bug!");
+            return 0;
         }
 
         (noiseOsc.last() + 2) * 0.01 => noise.gain;
@@ -230,7 +234,7 @@ public class Controller extends GGen {
             if (state == State_Blind) {
                 State_BlindFall => state;
                 hud.blinker.open(500::ms);
-                hud.setTitleText("You fell!\nPress space to place orbs\nPress V to view replay");
+                hud.setMessageText("You fell!\nPress space to place orbs\nPress V to view replay");
             }
         } else {
             plat.interact(player, now) => int code;
@@ -238,7 +242,7 @@ public class Controller extends GGen {
                 State_Win => state;
                 hud.blinker.open(500::ms);
                 end_jingle.play();
-                hud.setTitleText("You win!\nPress space for next level\nPress V to view replay");
+                hud.setMessageText("You win!\nPress space for next level\nPress V to view replay");
             }
         }
 
@@ -257,6 +261,7 @@ public class Controller extends GGen {
         }
 
         if (state == State_Placing) {
+            hud.setMessageText(level.message);
             if (GWindow.keyDown(GWindow.Key_R)) {
                 level.reset(player);
             } else if (GWindow.keyDown(GWindow.Key_Space)) {
@@ -265,6 +270,7 @@ public class Controller extends GGen {
                 1 => player.shouldPreventInput;
                 State_BlindClosing => state;
                 hud.blinker.close(1::second);
+                hud.setMessageText("");
             }
         } else if (state == State_Blind) {
             player._cam.rotX(-0.2);
@@ -290,7 +296,9 @@ public class Controller extends GGen {
                 startReplay();
             }
         } else if (state == State_BlindClosing) {
+            if (level.spin) player.rotateY(0.1);
             if (hud.blinker.eyeState == Blinker.EyeState_Closed) {
+                if (level.spin) player.rotateY(Math.random2f(0, 2*pi));
                 0 => player.shouldPreventInput;
                 State_Blind => state;
                 replay.clear();

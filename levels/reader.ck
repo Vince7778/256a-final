@@ -160,6 +160,11 @@ public class LevelReader {
                 tok.next().toInt() => l.maxOrbs;
             } else if (lineType == "title") {
                 line.substring(6) => l.title;
+            } else if (lineType == "spin") {
+                true => l.spin;
+            } else if (lineType == "message") {
+                line.substring(8) => string msg;
+                l.addMessage(msg);
             } else {
                 <<< "Error: Unrecognized line type in level", filepath, ":", lineType >>>;
             }

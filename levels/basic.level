@@ -1,9 +1,11 @@
-title Level 1: Around the Corner
-// first level in the game!
+title Level 2: Around the Corner
+// second level in the game!
 // pretty simple, just need to place sound balls
 // to guide yourself around the corner
 
-spawn 0 0 -30
+message Press R to respawn if you fall off while not blind
+
+spawn 0 0
 orbs 2
 
 p basic 0 -2 -2 2 2

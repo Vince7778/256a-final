@@ -1,7 +1,9 @@
-title Level 2: A Button
+title Level 3: A Button
+message Stepping on a button lowers walls of the same color
 
 // level with a button that lowers a wall
 spawn 0 0 180
+spin
 orbs 3
 
 p basic 0 -2 -2 2 2

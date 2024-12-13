@@ -115,20 +115,24 @@ public class Player extends Entity {
             curVel.normalize();
 
             setPos(@(posX() + curVel.x * MOVE_SPEED * dt, posY(), posZ() + curVel.z * MOVE_SPEED * dt));
-        }
 
-        pos() => vec3 stepPos;
-        0 => stepPos.y;
-        stepPos - lastStep => vec3 stepDiff;
-        if (stepDiff.magnitude() >= STEP_DISTANCE && !isFalling) {
-            if (lastStepBuf == 1) {
-                stepBuf2.pos(0);
-                2 => lastStepBuf;
-            } else {
-                stepBuf1.pos(0);
-                1 => lastStepBuf;
+            // only play step sounds if player actually inputted a move
+            // helps account for moving platforms
+            if (curVel.magnitude() > 0) {
+                pos() => vec3 stepPos;
+                0 => stepPos.y;
+                stepPos - lastStep => vec3 stepDiff;
+                if (stepDiff.magnitude() >= STEP_DISTANCE && !isFalling) {
+                    if (lastStepBuf == 1) {
+                        stepBuf2.pos(0);
+                        2 => lastStepBuf;
+                    } else {
+                        stepBuf1.pos(0);
+                        1 => lastStepBuf;
+                    }
+                    stepPos => lastStep;
+                }
             }
-            stepPos => lastStep;
         }
 
         fixCamera();
