@@ -54,6 +54,7 @@ public class Player extends Entity {
     fun setPos(vec3 p) {
         _bump.move("player", p.x - WIDTH/2, p.z - WIDTH/2) @=> MoveResult moveRes;
         posX(moveRes.x + WIDTH/2);
+        posY(p.y);
         posZ(moveRes.y + WIDTH/2);
     }
 
@@ -113,11 +114,7 @@ public class Player extends Entity {
             }
             curVel.normalize();
 
-            posX() - WIDTH/2 + curVel.x * MOVE_SPEED * dt => float goalX;
-            posZ() - WIDTH/2 + curVel.z * MOVE_SPEED * dt => float goalY;
-            _bump.move("player", goalX, goalY) @=> MoveResult moveRes;
-            posX(moveRes.x + WIDTH/2);
-            posZ(moveRes.y + WIDTH/2);
+            setPos(@(posX() + curVel.x * MOVE_SPEED * dt, posY(), posZ() + curVel.z * MOVE_SPEED * dt));
         }
 
         pos() => vec3 stepPos;

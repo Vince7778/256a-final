@@ -2,6 +2,7 @@
 
 // Orb that emits sound when you place it in the world!
 public class SoundOrb extends Entity {
+    5 => static int MAX_ORBS;
     [1.0/3, 0.0, 1.0/6, 2.0/3, 5.0/6] @=> static float ORB_HUES[];
     0.2 => static float DIAMETER;
     0.5::second => static dur PLAY_DELAY;

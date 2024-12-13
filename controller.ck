@@ -21,7 +21,6 @@ public class Controller extends GGen {
     6 => static int State_Starting;
     7 => static int State_Replaying;
 
-    5 => static int MAX_ORBS;
     [ GWindow.Key_1, 
       GWindow.Key_2,
       GWindow.Key_3,
@@ -35,7 +34,7 @@ public class Controller extends GGen {
     null @=> Player @ player;
     
     SpatializerEngine engine => dac;
-    SoundOrb orbs[MAX_ORBS];
+    SoundOrb orbs[SoundOrb.MAX_ORBS];
 
     Hud hud;
 
@@ -64,7 +63,7 @@ public class Controller extends GGen {
         new Player(bump) @=> player;
         player --> this;
         level.spawn(player);
-        for (int i; i < MAX_ORBS; i++) {
+        for (int i; i < SoundOrb.MAX_ORBS; i++) {
             new SoundOrb(i, engine) @=> orbs[i];
         }
         spork ~ startAnimation(scene);
@@ -212,7 +211,7 @@ public class Controller extends GGen {
             }
         } else if (state == State_Blind || state == State_Win || state == State_BlindFall) {
             for (int i; i < level.maxOrbs; i++) {
-                if (GWindow.keyDown(ORB_KEYS[i])) {
+                if (orbs[i].isPlaced && GWindow.keyDown(ORB_KEYS[i])) {
                     !orbs[i].isPlaying => orbs[i].isPlaying;
                     hud.setOrb(i, orbs[i].isPlaying);
                 }
@@ -269,14 +268,14 @@ public class Controller extends GGen {
             }
         } else if (state == State_Blind) {
             player._cam.rotX(-0.2);
-            replay.addFrame(player);
+            replay.addFrame(player, orbs);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 silenceOrbs();
                 State_Placing => state;
                 hud.blinker.open(500::ms);
             }
         } else if (state == State_BlindFall) {
-            replay.addFrame(player);
+            replay.addFrame(player, orbs);
             if (GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_R)) {
                 level.reset(player);
                 silenceOrbs();
@@ -297,19 +296,19 @@ public class Controller extends GGen {
                 replay.clear();
             }
         } else if (state == State_Replaying) {
-            if (replay.nextFrame(player, level) || GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_V)) {
+            if (replay.nextFrame(player, orbs, level) || GWindow.keyDown(GWindow.Key_Space) || GWindow.keyDown(GWindow.Key_V)) {
                 endReplay();
             }
         }
 
-        engine.setPos(player.pos());
+        engine.setPos(player.getPos());
         engine.setDir(player._cam.forward());
 
         return 0;
     }
 
     fun void silenceOrbs() {
-        for (int i; i < MAX_ORBS; i++) {
+        for (int i; i < SoundOrb.MAX_ORBS; i++) {
             if (orbs[i].isPlaying) {
                 0 => orbs[i].isPlaying;
                 hud.setOrb(i, 0);
@@ -318,7 +317,7 @@ public class Controller extends GGen {
     }
 
     fun void clearOrbs() {
-        for (int i; i < MAX_ORBS; i++) {
+        for (int i; i < SoundOrb.MAX_ORBS; i++) {
             if (orbs[i].isPlaced) {
                 orbs[i] --< this;
                 0 => orbs[i].isPlaced;

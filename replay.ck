@@ -1,23 +1,32 @@
-@import { "player.ck" }
+@import { "player.ck", "orb.ck" }
 
 class ReplayFrame {
     time t;
     vec3 playerPos;
     vec3 playerRot;
     vec3 camRot;
+    vec3 orbPos[SoundOrb.MAX_ORBS];
 
-    fun ReplayFrame(Player @ p) {
+    fun ReplayFrame(Player @ p, SoundOrb @ orbs[]) {
         now => t;
-        p.pos() => playerPos;
+        p.getPos() => playerPos;
         p.rot() => playerRot;
         p._cam.rot() => camRot;
+        for (int i; i < orbs.size(); i++) {
+            orbs[i].getPos() => orbPos[i];
+        }
     }
 
-    fun updatePlayer(Player @ p) {
+    fun updateStuff(Player @ p, SoundOrb @ orbs[]) {
         playerPos => p.pos;
         playerRot => p.rot;
         camRot => p._cam.rot;
         p.fixCamera();
+        for (int i; i < orbs.size(); i++) {
+            if (orbs[i].isPlaced) {
+                orbs[i].setPos(orbPos[i]);
+            }
+        }
     }
 }
 
@@ -28,11 +37,11 @@ public class Replay {
     0 => int isPlaying;
     0 => int frameIndex;
 
-    fun addFrame(Player @ p) {
+    fun addFrame(Player @ p, SoundOrb @ orbs[]) {
         if (empty()) {
             now => startTime;
         }
-        _frames << new ReplayFrame(p);
+        _frames << new ReplayFrame(p, orbs);
     }
 
     fun int empty() {
@@ -49,7 +58,7 @@ public class Replay {
     }
 
     // returns 1 if replay should end
-    fun int nextFrame(Player @ p, Level @ l) {
+    fun int nextFrame(Player @ p, SoundOrb @ orbs[], Level @ l) {
         if (empty() || !isPlaying) {
             return 1;
         }
@@ -57,7 +66,7 @@ public class Replay {
             0 => isPlaying;
             return 1;
         }
-        _frames[frameIndex].updatePlayer(p);
+        _frames[frameIndex].updateStuff(p, orbs);
         l.upd(_frames[frameIndex].t);
         frameIndex++;
         return 0;
