@@ -58,7 +58,7 @@ public class Button extends Platform {
     }
 
     fun int interact(Entity @ e, time t) {
-        if (!_pressed) {
+        if (e.isPlayer() && !_pressed) {
             1 => _pressed;
             activate();
         }

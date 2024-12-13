@@ -23,6 +23,7 @@ GG.scene().light().rotateY(0.8);
 GG.scene().light().rotateX(-pi/5);
 
 [
+    "levels/bus.level",
     "levels/moving.level",
     "levels/intro.level",
     "levels/basic.level",
