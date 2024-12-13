@@ -37,7 +37,6 @@ class HudOrbs extends GGen {
                 texts << text;
             }
         }
-        
     }
 
     fun set(int i, int on) {

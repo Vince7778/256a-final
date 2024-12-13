@@ -57,12 +57,12 @@ public class Button extends Platform {
         now => _pressTime;
     }
 
-    fun int interact(Player @ p) {
+    fun int interact(Entity @ e, time t) {
         if (!_pressed) {
             1 => _pressed;
             activate();
         }
-        return Inter_Floor;
+        return Platform.Inter_Floor;
     }
 
     fun void reset() {

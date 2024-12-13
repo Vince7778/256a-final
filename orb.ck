@@ -1,7 +1,7 @@
 @import { "audio/spatializer.ck", "audio/chime.ck" }
 
 // Orb that emits sound when you place it in the world!
-public class SoundOrb extends GGen {
+public class SoundOrb extends Entity {
     [1.0/3, 0.0, 1.0/6, 2.0/3, 5.0/6] @=> static float ORB_HUES[];
     0.2 => static float DIAMETER;
     0.5::second => static dur PLAY_DELAY;
@@ -30,5 +30,9 @@ public class SoundOrb extends GGen {
     fun void setPos(vec3 p) {
         p => _source.pos;
         p => this.pos;
+    }
+
+    fun vec4 getAABB() {
+        return @(posX()-DIAMETER/2, posZ()-DIAMETER/2, posX()+DIAMETER/2, posZ()+DIAMETER/2);
     }
 }

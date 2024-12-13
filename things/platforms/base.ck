@@ -1,4 +1,4 @@
-@import { "../../utils.ck", "../../player.ck" }
+@import { "../../utils.ck", "../../player.ck", "../../entity.ck" }
 
 // base class for all platform types
 // should never be moved, rotated, or scaled using the GGen methods
@@ -14,12 +14,12 @@ public class Platform extends GGen {
 
     fun reset() {}
 
-    fun int interact(Player @ p) {
+    fun int interact(Entity @ e, time t) {
         return Inter_Floor;
     }
 
-    fun int collidesWithPlayer(Player @ p) {
-        return Utils.collideAABB(_hitbox, p.getAABB());
+    fun int collidesWith(Entity @ e) {
+        return Utils.collideAABB(_hitbox, e.getAABB());
     }
 
     // player will not fall if they collide with this region

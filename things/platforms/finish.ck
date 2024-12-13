@@ -24,7 +24,11 @@ public class FinishPlatform extends Platform {
         ));
     }
 
-    fun int interact(Player @ p) {
-        return Platform.Inter_EndLevel;
+    fun int interact(Entity @ e, time t) {
+        if (e.isPlayer()) {
+            return Platform.Inter_EndLevel;
+        } else {
+            return Platform.Inter_Floor;
+        }
     }
 }

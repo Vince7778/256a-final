@@ -75,7 +75,7 @@ public class Level extends GGen {
 
     fun spawn(Player @ p) {
         p.reset();
-        p.setPos(@(_spawn.x, 0, _spawn.y));
+        p.setPosForce(@(_spawn.x, 0, _spawn.y));
         p.rotateY(_startRot);
     }
 
@@ -96,10 +96,10 @@ public class Level extends GGen {
         }
     }
 
-    // returns the platform that the player is interacting with
-    fun Platform touchingPlatform(Player @ p) {
+    // returns the platform that the entity is interacting with
+    fun Platform touchingPlatform(Entity @ e) {
         for (Platform @ plat : _plats) {
-            if (plat.collidesWithPlayer(p)) {
+            if (plat.collidesWith(e)) {
                 return plat;
             }
         }

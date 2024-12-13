@@ -234,12 +234,21 @@ public class Controller extends GGen {
                 hud.setTitleText("You fell!\nPress space to place orbs\nPress V to view replay");
             }
         } else {
-            plat.interact(player) => int code;
+            plat.interact(player, now) => int code;
             if (code == Platform.Inter_EndLevel && state == State_Blind) {
                 State_Win => state;
                 hud.blinker.open(500::ms);
                 end_jingle.play();
                 hud.setTitleText("You win!\nPress space for next level\nPress V to view replay");
+            }
+        }
+
+        for (SoundOrb @ orb : orbs) {
+            if (orb.isPlaced) {
+                level.touchingPlatform(orb) @=> Platform plat;
+                if (plat != null) {
+                    plat.interact(orb, now);
+                }
             }
         }
 

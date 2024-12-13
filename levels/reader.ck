@@ -5,6 +5,7 @@
     "../things/platforms/basic.ck", 
     "../things/platforms/finish.ck", 
     "../things/platforms/button.ck",
+    "../things/platforms/moving.ck",
     "../things/walls/base.ck",
     "../things/walls/basic.ck",
     "../things/walls/gate.ck",
@@ -36,6 +37,13 @@ public class LevelReader {
         } else if (platType == "finish") {
             Utils.readVec4(tok) => vec4 bounds;
             return new FinishPlatform(priority, bounds);
+        } else if (platType == "moving") {
+            Utils.readVec2(tok) => vec2 size;
+            Utils.readVec2(tok) => vec2 pos1;
+            Utils.readVec2(tok) => vec2 pos2;
+            tok.next().toFloat() => float moveTime;
+            tok.next().toFloat() => float waitTime;
+            return new MovingPlatform(priority, size, pos1, pos2, moveTime, waitTime);
         } else {
             <<< "Error: when reading level file: Unrecognized platform type", platType >>>;
             return null;

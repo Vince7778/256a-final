@@ -1,7 +1,7 @@
-@import { "bump.ck", "audio/spatializer.ck" }
+@import { "bump.ck", "audio/spatializer.ck", "entity.ck" }
 
 // Player controller
-public class Player extends GGen {
+public class Player extends Entity {
     0.8 => static float EYE_HEIGHT;
     0.003 => static float ROTATION_SPEED;
     3.0 => static float MOVE_SPEED;
@@ -41,11 +41,23 @@ public class Player extends GGen {
         bump.add("player", new BRect(getAABB()));
     }
 
+    fun int isPlayer() {
+        return true;
+    }
+
     fun setSceneCam(GScene @ scene) {
         scene.camera(_camReal);
     }
 
+    // resolves collisions
+    // use setPosForce to skip collision step
     fun setPos(vec3 p) {
+        _bump.move("player", p.x - WIDTH/2, p.z - WIDTH/2) @=> MoveResult moveRes;
+        posX(moveRes.x + WIDTH/2);
+        posZ(moveRes.y + WIDTH/2);
+    }
+
+    fun setPosForce(vec3 p) {
         pos(p);
         _bump.update("player", posX()-WIDTH/2, posZ()-WIDTH/2);
     }
