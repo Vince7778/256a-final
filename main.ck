@@ -23,9 +23,9 @@ GG.scene().light().rotateY(0.8);
 GG.scene().light().rotateX(-pi/5);
 
 [
+    "levels/maze2.level",
     "levels/button.level",
     "levels/basic.level",
-    "levels/maze2.level",
     "levels/maze.level",
     "levels/test.level",
     "levels/debug.level"

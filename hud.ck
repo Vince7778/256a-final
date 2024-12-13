@@ -5,7 +5,7 @@ class HudOrbs extends GGen {
     0.1 => static float ORB_SPACING;
 
     GText zeroText;
-    zeroText.text("No sound orbs available!");
+    zeroText.text("No orbs available!");
     zeroText.controlPoints(@(0.0, 1.0));
     zeroText.posX(ORB_SPACING);
     zeroText.posY(-ORB_SPACING);

@@ -325,6 +325,10 @@ public class Controller extends GGen {
     fun void cleanup() {
         clearOrbs();
         engine =< dac;
+        jingle =< dac;
+        end_jingle =< dac;
+        lpf =< dac;
+        noiseOsc =< blackhole;
         hud --< GG.hud();
     }
 }

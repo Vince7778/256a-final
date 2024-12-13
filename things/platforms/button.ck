@@ -68,6 +68,7 @@ public class Button extends Platform {
     fun void reset() {
         _cube.posY(-HEIGHT / 2.0 + UNPRESSED_STEP);
         0 => _pressed;
+        now + 1::eon => _pressTime;
         sender.setActive(false);
     }
 }
